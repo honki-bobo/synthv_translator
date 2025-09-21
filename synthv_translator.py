@@ -5,6 +5,7 @@ import sys
 import re
 from phonemizer import phonemize
 import pyphen
+import itertools
 
 
 def load_mapping(map_file: str):
@@ -18,7 +19,7 @@ def load_mapping(map_file: str):
 
 
 def ipa_convert(text: str, lang: str) -> list[list[str]]:
-    """ Perform syllabification and convert input text into IPA using phonemizer (no punctuation, no stress).
+    """Perform syllabification and convert input text into IPA using phonemizer (no punctuation, no stress).
 
     Returns:
         ipa_list (list[list[str]]): IPA translation of the input text.
@@ -50,7 +51,7 @@ def ipa_convert(text: str, lang: str) -> list[list[str]]:
                     syls[0] = syls[0] + syls[1]
                     syls.pop(1)
                 elif i > 0:
-                    syls[i-1] = syls[i-1] + syls[i]
+                    syls[i - 1] = syls[i - 1] + syls[i]
                     syls.pop(i)
             else:
                 i += 1
@@ -65,7 +66,7 @@ def ipa_convert(text: str, lang: str) -> list[list[str]]:
         backend="espeak",
         strip=True,
         preserve_punctuation=False,
-        with_stress=False
+        with_stress=False,
     )
     # post-processing of phonemize output
     ipa_list_fixed = []
@@ -80,7 +81,7 @@ def ipa_convert(text: str, lang: str) -> list[list[str]]:
     ipa_list = []
     i = 0
     for word in syllabified_words:
-        ipa_list.append([syl for syl in ipa_list_fixed[i:i+len(word)]])
+        ipa_list.append([syl for syl in ipa_list_fixed[i : i + len(word)]])
         i += len(word)
     print(ipa_list)
     return ipa_list
@@ -93,7 +94,7 @@ def segment_syllable(syllable: str, phoneme_map, key_lengths):
     while i < len(syllable):
         match = None
         for L in key_lengths:  # try longest keys first
-            chunk = syllable[i:i+L]
+            chunk = syllable[i : i + L]
             if chunk in phoneme_map:
                 match = chunk
                 break
@@ -104,6 +105,59 @@ def segment_syllable(syllable: str, phoneme_map, key_lengths):
             segments.append(syllable[i])
             i += 1
     return segments
+
+
+def map_phoneme_sequences(phoneme_seq, phoneme_map) -> list[dict]:
+    """
+    Generate all possible language-specific phoneme combinations with weights and single_lang flag.
+
+    Parameters:
+        phoneme_seq (List[str]): Sequence of IPA phonemes (e.g., ["l", "j", "r"])
+        phoneme_map (Dict[str, List[Dict[str, Any]]]): Mapping from IPA phonemes
+            to a list of dicts with {"lang": ..., "ph": ..., "weight": ...}
+
+    Returns:
+        List[Dict[str, Any]]: Each dict has keys {"weight", "single_lang", "mapping"}.
+    """
+
+    # Step 1: restrict mapping to only relevant phonemes
+    phoneme_seq_map = {ph: phoneme_map[ph] for ph in phoneme_seq if ph in phoneme_map}
+
+    # Step 2: find maximum option length
+    max_weight_all = max(len(options) for options in phoneme_seq_map.values())
+
+    results = []
+
+    # Step 3: cartesian product over all options for each phoneme in sequence
+    option_lists = [phoneme_seq_map[ph] for ph in phoneme_seq]
+
+    for combo in itertools.product(*option_lists):
+        mapping = []
+        total_weight = 0.0
+        langs = []
+
+        for ph, chosen_entry in zip(phoneme_seq, combo):
+            idx = phoneme_seq_map[ph].index(chosen_entry)
+            phoneme_weight = (max_weight_all - idx) + chosen_entry.get("weight", 0.0)
+
+            total_weight += phoneme_weight
+            langs.append(chosen_entry["lang"])
+
+            # preserve "weight" only if present in the original
+            entry_copy = {k: v for k, v in chosen_entry.items()}
+            mapping.append(entry_copy)
+
+        single_lang = all(lang == langs[0] for lang in langs)
+
+        results.append(
+            {
+                "weight": total_weight,
+                "single_lang": single_lang,
+                "mapping": mapping,
+            }
+        )
+
+    return results
 
 
 def choose_best_language(phoneme_seq, phoneme_map):
@@ -132,15 +186,15 @@ def choose_best_language(phoneme_seq, phoneme_map):
 
 
 def map_syllable_with_alternatives(
-    syllable, phoneme_map, key_lengths,
-    alt_syllables=False, alt_phonemes=False, max_alts=0
+    syllable,
+    phoneme_map,
+    key_lengths,
+    alt_syllables=False,
+    alt_phonemes=False,
+    max_alts=0,
 ):
     """Map one IPA syllable into SV phonemes.
-       Returns (main_lang, main_syllable, alt_syllables_list)."""
-
-    def _clean_opts(opts):
-        # entferne leere/whitespace-Phoneme
-        return [p for p in opts if isinstance(p, str) and p.strip()]
+    Returns (main_lang, main_syllable, alt_syllables_list)."""
 
     phoneme_seq = segment_syllable(syllable, phoneme_map, key_lengths)
 
@@ -156,7 +210,6 @@ def map_syllable_with_alternatives(
         valid = True
         for ph in phoneme_seq:
             opts = [o["ph"] for o in phoneme_map.get(ph, []) if o["lang"] == lang]
-            opts = _clean_opts(opts)
             if opts:
                 phones_per_pos.append(opts)
             else:
@@ -169,14 +222,13 @@ def map_syllable_with_alternatives(
 
     # Helper: Silbe bauen; None zurückgeben, wenn Ergebnis leer
     def build_syllable(lang, phones_per_pos, allow_alt, max_alts=0):
-        if not phones_per_pos or any(not _clean_opts(opts) for opts in phones_per_pos):
+        if not phones_per_pos or any(not opts for opts in phones_per_pos):
             return None
         parts = []
         for opts in phones_per_pos:
-            opts = _clean_opts(opts)
             if allow_alt and len(opts) > 1:
                 if max_alts > 0:
-                    opts = opts[:min(len(opts), max_alts+1)]
+                    opts = opts[: min(len(opts), max_alts + 1)]
                 parts.append("[" + " | ".join(opts) + "]")
             else:
                 parts.append(opts[0])
@@ -188,18 +240,26 @@ def map_syllable_with_alternatives(
     # Hauptsilbe (mit optionalen Phonem-Alternativen)
     main_syllable = None
     if main_lang in lang_candidates:
-        main_syllable = build_syllable(main_lang, lang_candidates[main_lang], alt_phonemes, max_alts)
+        main_syllable = build_syllable(
+            main_lang, lang_candidates[main_lang], alt_phonemes, max_alts
+        )
 
     # Fallback, falls main_lang keine volle Abdeckung hat (sehr selten)
     if main_syllable is None and lang_candidates:
         # nimm irgendeine gültige Sprache (die mit meisten Optionen)
-        best_fallback_lang = max(lang_candidates.keys(), key=lambda L: sum(len(x) for x in lang_candidates[L]))
+        best_fallback_lang = max(
+            lang_candidates.keys(),
+            key=lambda L: sum(len(x) for x in lang_candidates[L]),
+        )
         main_lang = best_fallback_lang
-        main_syllable = build_syllable(main_lang, lang_candidates[best_fallback_lang], alt_phonemes, max_alts)
+        main_syllable = build_syllable(
+            main_lang, lang_candidates[best_fallback_lang], alt_phonemes, max_alts
+        )
 
     # Wenn gar nichts ging: als Notnagel die rohe Sequenz ausgeben
     if main_syllable is None:
         import sys
+
         print(f"Warning: no full mapping for syllable '{syllable}'", file=sys.stderr)
         return None, " ".join(phoneme_seq), []
 
@@ -229,15 +289,22 @@ def map_syllable_with_alternatives(
 
         # max_alts: 0 ⇒ alle; >0 ⇒ auf N begrenzen
         if max_alts > 0:
-            scored = scored[:min(len(scored), max_alts+1)]
+            scored = scored[: min(len(scored), max_alts + 1)]
 
         alt_syllables_list = [s for _, s in scored]
 
     return main_lang, main_syllable, alt_syllables_list
 
 
-def ipa_to_sv(ipa_list, phoneme_map, key_lengths,
-              alt_syllables=False, alt_phonemes=False, max_alts=0):
+def ipa_to_sv(
+    ipa_list,
+    phoneme_map,
+    key_lengths,
+    alt_syllables=False,
+    alt_phonemes=False,
+    lang_per_phoneme=False,
+    max_alts=0,
+):
     """Convert IPA into SV phoneme sequence with optional alternatives."""
 
     output_words = []
@@ -246,12 +313,15 @@ def ipa_to_sv(ipa_list, phoneme_map, key_lengths,
     for syllables in ipa_list:
         mapped = [
             map_syllable_with_alternatives(
-                syl, phoneme_map, key_lengths,
+                syl,
+                phoneme_map,
+                key_lengths,
                 alt_syllables=alt_syllables,
                 alt_phonemes=alt_phonemes,
-                max_alts=max_alts
+                max_alts=max_alts,
             )
-            for syl in syllables if syl
+            for syl in syllables
+            if syl
         ]
 
         word_out = []
@@ -280,19 +350,51 @@ def main():
     parser = argparse.ArgumentParser(
         description="Text → Synthesizer V phoneme translator"
     )
-    parser.add_argument("-i", "--input", type=str,
-                        help="Input text file (optional, defaults to stdin)")
-    parser.add_argument("-l", "--lang", type=str, choices=["de", "fr", "it", "pt", "ru"], default="de",
-                        help="Language for phonemization (default: de)")
-    parser.add_argument("-m", "--map-file", type=str, default="mappings\de.json",
-                        help="Path to the JSON mapping file (default: mappings\de.json)")
-    parser.add_argument("-a", "--alts", type=int, choices=[0, 1, 2, 3], default=0,
-                        help="Show alternatives. 0 = none, 1 = phonemes, 2 = syllables, 3 = both (default: 0)")
-    parser.add_argument("-v", "--verbose", type=int, default=0,
-                        help="Maximum number of alternatives shown in output (0 = all)")
-    parser.add_argument("-o", "--output", type=str,
-                        help="Output file (optional, defaults to stdout)")
-    parser.add_argument("words", nargs="*", help="Words to translate (ignored if -i is used)")
+    parser.add_argument(
+        "-i", "--input", type=str, help="Input text file (optional, defaults to stdin)"
+    )
+    parser.add_argument(
+        "-l",
+        "--lang",
+        type=str,
+        choices=["de", "fr", "it", "pt", "ru"],
+        default="de",
+        help="Language for phonemization (default: de)",
+    )
+    parser.add_argument(
+        "-m",
+        "--map-file",
+        type=str,
+        default="mappings\de.json",
+        help="Path to the JSON mapping file (default: mappings\de.json)",
+    )
+    parser.add_argument(
+        "-a",
+        "--alts",
+        type=int,
+        choices=[0, 1, 2, 3],
+        default=0,
+        help="Show alternatives. 0 = none, 1 = phonemes, 2 = syllables, 3 = both (default: 0)",
+    )
+    parser.add_argument(
+        "-p",
+        "--phoneme-edit",
+        action="store_true",
+        help="Allow language switching per phoneme instead of per syllable",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        type=int,
+        default=0,
+        help="Maximum number of alternatives shown in output. 0 = all (default: 0)",
+    )
+    parser.add_argument(
+        "-o", "--output", type=str, help="Output file (optional, defaults to stdout)"
+    )
+    parser.add_argument(
+        "words", nargs="*", help="Words to translate (ignored if -i is used)"
+    )
     args = parser.parse_args()
 
     # Load mapping
@@ -315,8 +417,9 @@ def main():
         phoneme_map,
         key_lengths,
         alt_syllables=args.alts > 2,
-        alt_phonemes=args.alts in [1,3],
-        max_alts=args.verbose
+        alt_phonemes=args.alts in [1, 3],
+        lang_per_phoneme=args.phoneme_edit,
+        max_alts=args.verbose,
     )
 
     if args.output:
