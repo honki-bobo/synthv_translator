@@ -1,0 +1,170 @@
+{
+  "p": [
+    {
+      "lang": "spanish",
+      "ph": "p"
+    }
+  ],
+  "b": [
+    {
+      "lang": "spanish",
+      "ph": "b"
+    }
+  ],
+  "t": [
+    {
+      "lang": "spanish",
+      "ph": "t"
+    }
+  ],
+  "d": [
+    {
+      "lang": "spanish",
+      "ph": "d"
+    }
+  ],
+  "k": [
+    {
+      "lang": "spanish",
+      "ph": "k"
+    }
+  ],
+  "g": [
+    {
+      "lang": "spanish",
+      "ph": "g"
+    }
+  ],
+  "m": [
+    {
+      "lang": "spanish",
+      "ph": "m"
+    }
+  ],
+  "n": [
+    {
+      "lang": "spanish",
+      "ph": "n"
+    }
+  ],
+  "ɲ": [
+    {
+      "lang": "spanish",
+      "ph": "ny"
+    }
+  ],
+  "ŋ": [
+    {
+      "lang": "english",
+      "ph": "ng"
+    }
+  ],
+  "f": [
+    {
+      "lang": "spanish",
+      "ph": "f"
+    }
+  ],
+  "v": [
+    {
+      "lang": "spanish",
+      "ph": "v"
+    }
+  ],
+  "s": [
+    {
+      "lang": "spanish",
+      "ph": "s"
+    }
+  ],
+  "z": [
+    {
+      "lang": "spanish",
+      "ph": "z"
+    }
+  ],
+  "ʃ": [
+    {
+      "lang": "english",
+      "ph": "sh"
+    }
+  ],
+  "ts": [
+    {
+      "lang": "japanese",
+      "ph": "ts"
+    }
+  ],
+  "dz": [
+    {
+      "lang": "spanish",
+      "ph": "d z"
+    }
+  ],
+  "tʃ": [
+    {
+      "lang": "english",
+      "ph": "ch"
+    }
+  ],
+  "dʒ": [
+    {
+      "lang": "english",
+      "ph": "jh"
+    }
+  ],
+  "l": [
+    {
+      "lang": "spanish",
+      "ph": "l"
+    }
+  ],
+  "r": [
+    {
+      "lang": "spanish",
+      "ph": "rr"
+    }
+  ],
+  "i": [
+    {
+      "lang": "spanish",
+      "ph": "i"
+    }
+  ],
+  "e": [
+    {
+      "lang": "spanish",
+      "ph": "e"
+    }
+  ],
+  "ɛ": [
+    {
+      "lang": "spanish",
+      "ph": "e"
+    }
+  ],
+  "a": [
+    {
+      "lang": "spanish",
+      "ph": "a"
+    }
+  ],
+  "o": [
+    {
+      "lang": "spanish",
+      "ph": "o"
+    }
+  ],
+  "ɔ": [
+    {
+      "lang": "spanish",
+      "ph": "o"
+    }
+  ],
+  "u": [
+    {
+      "lang": "spanish",
+      "ph": "u"
+    }
+  ]
+}

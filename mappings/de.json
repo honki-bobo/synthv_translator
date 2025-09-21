@@ -1,0 +1,737 @@
+{
+  "b": [
+    {
+      "lang": "spanish",
+      "ph": "b"
+    },
+    {
+      "lang": "english",
+      "ph": "b"
+    },
+    {
+      "lang": "japanese",
+      "ph": "b"
+    }
+  ],
+  "d": [
+    {
+      "lang": "spanish",
+      "ph": "d"
+    },
+    {
+      "lang": "english",
+      "ph": "d"
+    },
+    {
+      "lang": "japanese",
+      "ph": "d"
+    }
+  ],
+  "g": [
+    {
+      "lang": "spanish",
+      "ph": "g"
+    },
+    {
+      "lang": "english",
+      "ph": "g"
+    },
+    {
+      "lang": "japanese",
+      "ph": "g"
+    }
+  ],
+  "p": [
+    {
+      "lang": "spanish",
+      "ph": "p"
+    },
+    {
+      "lang": "english",
+      "ph": "p"
+    },
+    {
+      "lang": "japanese",
+      "ph": "p"
+    }
+  ],
+  "t": [
+    {
+      "lang": "spanish",
+      "ph": "t"
+    },
+    {
+      "lang": "english",
+      "ph": "t"
+    },
+    {
+      "lang": "japanese",
+      "ph": "t"
+    }
+  ],
+  "k": [
+    {
+      "lang": "spanish",
+      "ph": "k"
+    },
+    {
+      "lang": "english",
+      "ph": "k"
+    },
+    {
+      "lang": "japanese",
+      "ph": "k"
+    }
+  ],
+  "f": [
+    {
+      "lang": "spanish",
+      "ph": "f"
+    },
+    {
+      "lang": "english",
+      "ph": "f"
+    },
+    {
+      "lang": "japanese",
+      "ph": "f"
+    }
+  ],
+  "v": [
+    {
+      "lang": "english",
+      "ph": "v"
+    }
+  ],
+  "s": [
+    {
+      "lang": "spanish",
+      "ph": "s"
+    },
+    {
+      "lang": "english",
+      "ph": "s"
+    },
+    {
+      "lang": "japanese",
+      "ph": "s"
+    }
+  ],
+  "z": [
+    {
+      "lang": "english",
+      "ph": "z"
+    },
+    {
+      "lang": "japanese",
+      "ph": "z"
+    }
+  ],
+  "ʃ": [
+    {
+      "lang": "english",
+      "ph": "sh"
+    },
+    {
+      "lang": "spanish",
+      "ph": "sh"
+    },
+    {
+      "lang": "japanese",
+      "ph": "sh"
+    }
+  ],
+  "ʒ": [
+    {
+      "lang": "english",
+      "ph": "zh"
+    }
+  ],
+  "ç": [
+    {
+      "lang": "japanese",
+      "ph": "hy"
+    },
+    {
+      "lang": "spanish",
+      "ph": "sh"
+    },
+    {
+      "lang": "english",
+      "ph": "sh"
+    }
+  ],
+  "x": [
+    {
+      "lang": "spanish",
+      "ph": "x"
+    },
+    {
+      "lang": "mandarin",
+      "ph": "kh"
+    },
+    {
+      "lang": "english",
+      "ph": "hh"
+    },
+    {
+      "lang": "english",
+      "ph": "k h"
+    }
+  ],
+  "h": [
+    {
+      "lang": "english",
+      "ph": "hh"
+    },
+    {
+      "lang": "spanish",
+      "ph": "h"
+    },
+    {
+      "lang": "japanese",
+      "ph": "h"
+    }
+  ],
+  "j": [
+    {
+      "lang": "english",
+      "ph": "y"
+    },
+    {
+      "lang": "spanish",
+      "ph": "y"
+    },
+    {
+      "lang": "japanese",
+      "ph": "y"
+    }
+  ],
+  "l": [
+    {
+      "lang": "spanish",
+      "ph": "l",
+      "weight": 2.0
+    },
+    {
+      "lang": "english",
+      "ph": "l"
+    }
+  ],
+  "r": [
+    {
+      "lang": "spanish",
+      "ph": "r"
+    },
+    {
+      "lang": "spanish",
+      "ph": "rr"
+    },
+    {
+      "lang": "english",
+      "ph": "r"
+    },
+    {
+      "lang": "japanese",
+      "ph": "r"
+    }
+  ],
+  "ʁ": [
+    {
+      "lang": "english",
+      "ph": "r"
+    },
+    {
+      "lang": "spanish",
+      "ph": "rr"
+    }
+  ],
+  "m": [
+    {
+      "lang": "spanish",
+      "ph": "m"
+    },
+    {
+      "lang": "english",
+      "ph": "m"
+    },
+    {
+      "lang": "japanese",
+      "ph": "m"
+    }
+  ],
+  "n": [
+    {
+      "lang": "spanish",
+      "ph": "n"
+    },
+    {
+      "lang": "english",
+      "ph": "n"
+    },
+    {
+      "lang": "japanese",
+      "ph": "n"
+    }
+  ],
+  "ŋ": [
+    {
+      "lang": "english",
+      "ph": "ng"
+    }
+  ],
+  "tʃ": [
+    {
+      "lang": "english",
+      "ph": "ch",
+      "weight": 2.0
+    },
+    {
+      "lang": "spanish",
+      "ph": "ch"
+    },
+    {
+      "lang": "japanese",
+      "ph": "ch"
+    }
+  ],
+  "dʒ": [
+    {
+      "lang": "english",
+      "ph": "jh",
+      "weight": 2.0
+    },
+    {
+      "lang": "japanese",
+      "ph": "j"
+    },
+    {
+      "lang": "spanish",
+      "ph": "J"
+    }
+  ],
+  "ts": [
+    {
+      "lang": "japanese",
+      "ph": "ts",
+      "weight": 2.0
+    },
+    {
+      "lang": "english",
+      "ph": "t s"
+    },
+    {
+      "lang": "spanish",
+      "ph": "t s"
+    }
+  ],
+  "ʔ": [
+    {
+      "lang": "symbol",
+      "ph": "'"
+    }
+  ],
+  "a": [
+    {
+      "lang": "spanish",
+      "ph": "a"
+    },
+    {
+      "lang": "english",
+      "ph": "aa"
+    },
+    {
+      "lang": "japanese",
+      "ph": "a"
+    }
+  ],
+  "aː": [
+    {
+      "lang": "spanish",
+      "ph": "a"
+    },
+    {
+      "lang": "english",
+      "ph": "aa"
+    },
+    {
+      "lang": "japanese",
+      "ph": "a"
+    }
+  ],
+  "e": [
+    {
+      "lang": "spanish",
+      "ph": "e"
+    },
+    {
+      "lang": "english",
+      "ph": "eh"
+    },
+    {
+      "lang": "japanese",
+      "ph": "e"
+    }
+  ],
+  "eː": [
+    {
+      "lang": "english",
+      "ph": "ey"
+    },
+    {
+      "lang": "spanish",
+      "ph": "e"
+    }
+  ],
+  "i": [
+    {
+      "lang": "spanish",
+      "ph": "i"
+    },
+    {
+      "lang": "english",
+      "ph": "ih"
+    },
+    {
+      "lang": "japanese",
+      "ph": "i"
+    }
+  ],
+  "iː": [
+    {
+      "lang": "english",
+      "ph": "iy"
+    },
+    {
+      "lang": "spanish",
+      "ph": "i"
+    }
+  ],
+  "o": [
+    {
+      "lang": "spanish",
+      "ph": "o"
+    },
+    {
+      "lang": "english",
+      "ph": "ao"
+    }
+  ],
+  "oː": [
+    {
+      "lang": "english",
+      "ph": "ow"
+    },
+    {
+      "lang": "spanish",
+      "ph": "o"
+    }
+  ],
+  "u": [
+    {
+      "lang": "spanish",
+      "ph": "u"
+    },
+    {
+      "lang": "english",
+      "ph": "uh"
+    }
+  ],
+  "uː": [
+    {
+      "lang": "english",
+      "ph": "uw"
+    },
+    {
+      "lang": "spanish",
+      "ph": "u"
+    }
+  ],
+  "y": [
+    {
+      "lang": "mandarin",
+      "ph": "y"
+    },
+    {
+      "lang": "mandarin",
+      "ph": "y{"
+    },
+    {
+      "lang": "spanish",
+      "ph": "i u"
+    },
+    {
+      "lang": "english",
+      "ph": "uw"
+    }
+  ],
+  "ø": [
+    {
+      "lang": "mandarin",
+      "ph": "yE"
+    },
+    {
+      "lang": "spanish",
+      "ph": "e u"
+    },
+    {
+      "lang": "english",
+      "ph": "ey uw"
+    }
+  ],
+  "œ": [
+    {
+      "lang": "mandarin",
+      "ph": "y{"
+    },
+    {
+      "lang": "spanish",
+      "ph": "e u"
+    },
+    {
+      "lang": "english",
+      "ph": "eh uw"
+    }
+  ],
+  "ə": [
+    {
+      "lang": "english",
+      "ph": "ax"
+    },
+    {
+      "lang": "spanish",
+      "ph": "e"
+    },
+    {
+      "lang": "spanish",
+      "ph": "o"
+    }
+  ],
+  "ɛ": [
+    {
+      "lang": "english",
+      "ph": "eh"
+    },
+    {
+      "lang": "spanish",
+      "ph": "e"
+    }
+  ],
+  "ɛː": [
+    {
+      "lang": "english",
+      "ph": "ey"
+    }
+  ],
+  "ɔ": [
+    {
+      "lang": "english",
+      "ph": "ao"
+    },
+    {
+      "lang": "spanish",
+      "ph": "o"
+    }
+  ],
+  "ɔː": [
+    {
+      "lang": "english",
+      "ph": "ao"
+    }
+  ],
+  "ɐ": [
+    {
+      "lang": "english",
+      "ph": "ax"
+    },
+    {
+      "lang": "spanish",
+      "ph": "a"
+    },
+    {
+      "lang": "spanish",
+      "ph": "o"
+    }
+  ],
+  "pf": [
+    {
+      "lang": "spanish",
+      "ph": "p f",
+      "weight": 2.0
+    },
+    {
+      "lang": "english",
+      "ph": "p f"
+    },
+    {
+      "lang": "japanese",
+      "ph": "p f"
+    }
+  ],
+  "aɪ": [
+    {
+      "lang": "english",
+      "ph": "ay"
+    },
+    {
+      "lang": "spanish",
+      "ph": "a i"
+    }
+  ],
+  "aʊ": [
+    {
+      "lang": "english",
+      "ph": "aw"
+    },
+    {
+      "lang": "spanish",
+      "ph": "a u"
+    }
+  ],
+  "ɔɪ": [
+    {
+      "lang": "english",
+      "ph": "oy"
+    },
+    {
+      "lang": "spanish",
+      "ph": "o i"
+    }
+  ],
+  "ʃt": [
+    {
+      "lang": "english",
+      "ph": "sh t"
+    },
+    {
+      "lang": "spanish",
+      "ph": "sh t"
+    },
+    {
+      "lang": "japanese",
+      "ph": "sh t"
+    }
+  ],
+  "ʃp": [
+    {
+      "lang": "english",
+      "ph": "sh p"
+    },
+    {
+      "lang": "spanish",
+      "ph": "sh p"
+    },
+    {
+      "lang": "japanese",
+      "ph": "sh p"
+    }
+  ],
+  "ɪ": [
+    {
+      "lang": "english",
+      "ph": "ih"
+    },
+    {
+      "lang": "spanish",
+      "ph": "i"
+    },
+    {
+      "lang": "japanese",
+      "ph": "i"
+    }
+  ],
+  "ɜ": [
+    {
+      "lang": "english",
+      "ph": "er"
+    },
+    {
+      "lang": "english",
+      "ph": "ax"
+    },
+    {
+      "lang": "spanish",
+      "ph": "e"
+    }
+  ],
+  "ɾ": [
+    {
+      "lang": "spanish",
+      "ph": "r"
+    },
+    {
+      "lang": "japanese",
+      "ph": "r"
+    },
+    {
+      "lang": "english",
+      "ph": "dx"
+    }
+  ],
+  "ɑ": [
+    {
+      "lang": "english",
+      "ph": "aa"
+    },
+    {
+      "lang": "spanish",
+      "ph": "a"
+    }
+  ],
+  "ʏ": [
+    {
+      "lang": "english",
+      "ph": "ih"
+    },
+    {
+      "lang": "spanish",
+      "ph": "i"
+    },
+    {
+      "lang": "english",
+      "ph": "uw"
+    }
+  ],
+  "ʊ": [
+    {
+      "lang": "english",
+      "ph": "uh"
+    },
+    {
+      "lang": "spanish",
+      "ph": "u"
+    }
+  ],
+  "ɡ": [
+    {
+      "lang": "spanish",
+      "ph": "g"
+    },
+    {
+      "lang": "english",
+      "ph": "g"
+    }
+  ],
+  "aɪ̯": [
+    {
+      "lang": "english",
+      "ph": "a i"
+    }
+  ],
+  "aʊ̯": [
+    {
+      "lang": "english",
+      "ph": "a u"
+    }
+  ],
+  "ɔʏ̯": [
+    {
+      "lang": "english",
+      "ph": "oy"
+    },
+    {
+      "lang": "english",
+      "ph": "o y"
+    }
+  ]
+}
