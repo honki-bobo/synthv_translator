@@ -19,8 +19,6 @@ def load_mapping(map_file: str):
         sys.exit(1)
 
 
-import difflib
-
 def project_syllables_from_ipa(syllable_ipa_list, word_ipa):
     """
     Align syllable-level IPA (possibly incorrect) with word-level IPA (correct),
@@ -79,7 +77,7 @@ def project_syllables_from_ipa(syllable_ipa_list, word_ipa):
     if buffer:
         result.append("".join(buffer))
     
-    # --- NEW GEMINATE FIX ---
+    # Geminate fix
     fixed_result = []
     for i, syl in enumerate(result):
         fixed_result.append(syl)
