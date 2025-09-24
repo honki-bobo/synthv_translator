@@ -6,7 +6,8 @@ import re
 from phonemizer import phonemize
 import itertools
 import difflib
-from phonological_syllabifier import PhonologicalSyllabifier as PhoSy
+import pyphen
+
 
 
 def load_mapping(map_file: str):
@@ -19,7 +20,7 @@ def load_mapping(map_file: str):
         sys.exit(1)
 
 
-def project_syllables_from_ipa(syllable_ipa_list, word_ipa):
+def project_syllables_from_ipa(syllable_ipa_list: list[str], word_ipa: str) -> list[str]:
     """
     Align syllable-level IPA (possibly incorrect) with word-level IPA (correct),
     and project syllable boundaries onto the correct IPA.
@@ -92,7 +93,49 @@ def project_syllables_from_ipa(syllable_ipa_list, word_ipa):
     return fixed_result
 
 
-def ipa_convert(text: str, lang: str = "de") -> list[list[str]]:
+def syllabify_orthographically(text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ") -> list[list[str]]:
+    # syllabify words
+    dic = pyphen.Pyphen(lang=lang)
+    words = text.strip().split()
+    syllabified_words = [dic.inserted(word) for word in words]
+
+    # post-processing
+    vowel_e_re = re.compile(rf"[{re.escape(vowels_orth)}][eE]$")
+    vowel_hb_re = re.compile(rf"[{re.escape(vowels_orth)}][hb]$")
+    for idx, word in enumerate(syllabified_words):
+        syls = word.split("-")
+        # add unrecognized syllables
+        if len(syls) == 1:
+            if vowel_hb_re.search(syls[0][:2].lower()):
+                syls = [syls[0][0], syls[0][1:]]
+            elif vowel_e_re.search(syls[0][-2:].lower()):
+                syls = [syls[0][:-1], syls[0][-1]]
+            syllabified_words[idx] = [s for s in syls]
+            continue
+        # move grapheme left
+        else:
+            for i in range(len(syls)-1):
+                if syls[i+1].startswith("phth"):
+                    syls[i] += "ph"
+                    syls[i+1] = syls[i+1][2:]
+        i = 0
+        # fix falsely split syllables if they only contain consonants
+        while i < len(syls):
+            if not any([v in syls[i].lower() for v in vowels_orth]):
+                if i == 0:
+                    syls[0] = syls[0] + syls[1]
+                    syls.pop(1)
+                elif i > 0:
+                    syls[i - 1] = syls[i - 1] + syls[i]
+                    syls.pop(i)
+            else:
+                i += 1
+        # replace entry with corrected word
+        syllabified_words[idx] = [s for s in syls]
+    return syllabified_words
+
+
+def ipa_convert(text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ") -> list[list[str]]:
     """Perform syllabification and convert input text into IPA using phonemizer (no punctuation, no stress).
 
     Returns:
@@ -101,8 +144,8 @@ def ipa_convert(text: str, lang: str = "de") -> list[list[str]]:
                                     and each str in a word is a syllable.
     """
     # syllabify text
-    phosy = PhoSy(f"mappings/{lang}_syllable_rules.json")
-    syllabified_words = phosy.syllabify_text_orthographically(text, lang)
+    syllabified_words = syllabify_orthographically(text, lang, vowels_orth)
+
     # translate syllables to IPA
     syllable_tokens = [syl for word in syllabified_words for syl in word]
     ipa_list = [re.sub(r"[ː‿‖ ]", "", syl) for syl in phonemize(
@@ -114,7 +157,7 @@ def ipa_convert(text: str, lang: str = "de") -> list[list[str]]:
         with_stress=False,
         language_switch="remove-flags"
     )]
-    print(ipa_list)
+    # print(ipa_list)
 
     # find words with more than 1 syllable
     word_tokens = ["".join(w) for w in syllabified_words if len(w) > 1]
@@ -128,7 +171,7 @@ def ipa_convert(text: str, lang: str = "de") -> list[list[str]]:
         with_stress=False,
         language_switch="remove-flags"
     )]
-    print(ipa_list_words)
+    # print(ipa_list_words)
 
     # build final output list
     ipa_list_syllables = []
@@ -140,15 +183,15 @@ def ipa_convert(text: str, lang: str = "de") -> list[list[str]]:
         else:
             syllable_ipa_list = ipa_list[j:j+len_w]
             word_ipa = ipa_list_words[k]
-            #print(syllable_ipa_list, word_ipa)
+            # print(syllable_ipa_list, word_ipa)
             ipa_list_syllables.append(project_syllables_from_ipa(syllable_ipa_list, word_ipa))
             k += 1
         j += len_w
-    print(ipa_list_syllables)
+    # print(ipa_list_syllables)
     return ipa_list_syllables
 
 
-def ipa_list_to_str(ipa_list):
+def ipa_list_to_str(ipa_list: list[list[str]]) -> str:
     ipa_words = []
     for word in ipa_list:
         ipa_words.append("-".join(word))
@@ -220,7 +263,7 @@ def get_syllable_alternatives(phoneme_seq: list[str], phoneme_map: dict, n_alter
         return results[:min(len(results), n_alternatives + 1)]
 
 
-def segment_syllable(syllable: str, phoneme_map, key_lengths):
+def segment_syllable(syllable: str, phoneme_map: dict, key_lengths: list[int]) -> list[str]:
     """Split a syllable into the longest possible phoneme units from the mapping."""
     segments = []
     i = 0
@@ -240,7 +283,13 @@ def segment_syllable(syllable: str, phoneme_map, key_lengths):
     return segments
 
 
-def convert_ipa_to_sv(ipa_list, phoneme_map, key_lengths, n_alternatives: int = 0, phoneme_edit: bool = False):
+def convert_ipa_to_sv(
+        ipa_list: list[list[str]],
+        phoneme_map: dict,
+        key_lengths: list[int],
+        n_alternatives: int = 0,
+        phoneme_edit: bool = False
+    ) -> list[list[str]]:
     result = []
     for word in ipa_list:
         sv_word = []
@@ -332,7 +381,9 @@ def main():
     args = parser.parse_args()
 
     # Load mapping
-    phoneme_map = load_mapping(args.map_file)
+    mapping = load_mapping(args.map_file)
+    phoneme_map = mapping["phoneme_map"]
+    vowels_orth = mapping["vowels_orth"]
     key_lengths = sorted(set(len(k) for k in phoneme_map.keys()), reverse=True)
 
     # Load input text
@@ -344,8 +395,8 @@ def main():
     else:
         text = sys.stdin.read()
 
-    ipa_list = ipa_convert(text, args.lang)
-    print(ipa_list_to_str(ipa_list))
+    ipa_list = ipa_convert(text, args.lang, vowels_orth)
+    # print(ipa_list_to_str(ipa_list))
     alternatives = convert_ipa_to_sv(ipa_list, phoneme_map, key_lengths, args.alternatives, args.phoneme_edit)
     output_string = get_output_string(alternatives)
 
