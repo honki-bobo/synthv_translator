@@ -1,5 +1,9 @@
 {
   "vowels_orth": "aeiouyäöüÿ",
+  "ipa_process": [
+      ["([^aeiouyäöüɛɔœøɐəɜ])(ɾ|r)", "\\1ʁ"],
+      ["^(ɾ|r)", "ʁ"]
+  ],
   "phoneme_map": {
     "b": [
       {
@@ -240,12 +244,12 @@
     ],
     "ʁ": [
       {
-        "lang": "english",
-        "ph": "r"
-      },
-      {
         "lang": "spanish",
         "ph": "rr"
+      },
+      {
+        "lang": "english",
+        "ph": "r"
       }
     ],
     "m": [
@@ -734,6 +738,28 @@
       {
         "lang": "english",
         "ph": "o y"
+      }
+    ],
+    "ɒ": [
+      {
+        "lang": "cantonese",
+        "ph": "6"
+      },
+      {
+        "lang": "mandarin",
+        "ph": "A"
+      },
+      {
+        "lang": "cantonese",
+        "ph": "O"
+      },
+      {
+        "lang": "english",
+        "ph": "ao"
+      },
+      {
+        "lang": "english",
+        "ph": "aa"
       }
     ]
   }
