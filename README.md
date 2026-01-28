@@ -63,7 +63,7 @@ pip install phonemizer pyphen
 ### Step 3: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/synthv_translator.git
+git clone https://github.com/honki-bobo/synthv_translator.git
 cd synthv_translator
 ```
 

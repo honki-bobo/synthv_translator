@@ -56,7 +56,7 @@ Documentation improvements are always appreciated:
 
 1. **Fork and clone the repository**
    ```bash
-   git clone https://github.com/yourusername/synthv_translator.git
+   git clone https://github.com/honki-bobo/synthv_translator.git
    cd synthv_translator
    ```
 
