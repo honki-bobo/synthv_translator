@@ -1,0 +1,7 @@
+# Synthesizer V Translator Dependencies
+
+# Phonemization library - converts text to IPA using eSpeak NG
+phonemizer>=3.2.1
+
+# Hyphenation library - used for syllabification
+pyphen>=0.14.0
