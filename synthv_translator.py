@@ -637,8 +637,8 @@ def main():
     parser.add_argument(
         "-m", "--map-file",
         type=str,
-        default="mappings\\de.json",
-        help="Path to the JSON mapping file (default: mappings\\de.json)"
+        default=None,
+        help="Path to the JSON mapping file (default: auto-detected from language)"
     )
     parser.add_argument(
         "-a", "--alternatives",
@@ -662,6 +662,10 @@ def main():
         help="Words to translate (ignored if -i is used)"
     )
     args = parser.parse_args()
+
+    # Auto-detect mapping file based on language if not specified
+    if args.map_file is None:
+        args.map_file = f"mappings\\{args.lang}.json"
 
     # Load the phoneme mapping configuration
     mapping = load_mapping(args.map_file)
