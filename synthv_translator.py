@@ -603,9 +603,33 @@ def get_output_string(alternatives) -> str:
             # Join alternatives with " | " separator
             group_strings.append(" | ".join(alt_strings))
 
-        # Join syllables with " - " separator
         # Wrap multi-alternative syllables in brackets
-        output_groups.append(" - ".join(f"[{s}]" if " | " in s else f"{s}" for s in group_strings))
+        formatted = [f"[{s}]" if " | " in s else f"{s}" for s in group_strings]
+
+        # Remove redundant language tags between consecutive syllables
+        # e.g., "<spanish> g u - <spanish> t e" → "<spanish> g u - t e"
+        # Only when both syllables have no alternatives (no brackets)
+        last_lang = None
+        for i, s in enumerate(formatted):
+            if s.startswith("["):
+                # Bracketed syllable: language is ambiguous, reset tracking
+                last_lang = None
+            else:
+                # Extract the leading language tag if present
+                match = re.match(r"^<(\w+)>", s)
+                if match:
+                    current_lang = match.group(1)
+                    if current_lang == last_lang:
+                        # Same language as previous syllable: remove the redundant tag
+                        formatted[i] = re.sub(r"^<\w+>\s*", "", s)
+
+                # Track the last language tag used in this syllable
+                # (could change mid-syllable due to language switching)
+                all_langs = re.findall(r"<(\w+)>", s)
+                last_lang = all_langs[-1] if all_langs else last_lang
+
+        # Join syllables with " - " separator
+        output_groups.append(" - ".join(formatted))
 
     # Join words with newlines
     return "\n".join(output_groups)
