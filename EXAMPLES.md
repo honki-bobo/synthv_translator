@@ -21,7 +21,7 @@ python synthv_translator.py "Hallo Welt"
 
 **Output:**
 ```
-<spanish> h a - l o
+<english> hh aa - <spanish> l o
 <english> v eh l t
 ```
 
@@ -33,7 +33,7 @@ python synthv_translator.py -l fr "Bonjour"
 
 **Output:**
 ```
-<spanish> b o - <english> zh uh r
+<spanish> b o - <english> zh <spanish> u <english> r
 ```
 
 ### Multiple Words
@@ -45,8 +45,8 @@ python synthv_translator.py -l de "Guten Morgen Deutschland"
 **Output:**
 ```
 <spanish> g u - t e n
-<spanish> m o - r g e n
-<spanish> d o e u t - <english> sh l a n d
+<spanish> m o r - g e n
+<english> d ao ey uw ch - <spanish> l a n t
 ```
 
 ## Working with Files
@@ -94,7 +94,7 @@ python synthv_translator.py -a 1 "Hallo"
 
 **Output:**
 ```
-[<spanish> h a | <english> hh aa] - [<spanish> l o | <english> l ow]
+[<english> hh aa | <spanish> h a] - [<spanish> l o | <english> l ao]
 ```
 
 The pipe `|` separates alternatives. The first option before the pipe is the primary suggestion.
@@ -125,8 +125,8 @@ python synthv_translator.py -l de "Schöne Grüße"
 
 **Output:**
 ```
-<english> sh er - n e
-<spanish> g r u - s e
+<english> sh ey uw - <spanish> n e
+<spanish> g rr i u - s e
 ```
 
 German umlauts (ä, ö, ü) and special characters are properly handled.
@@ -134,31 +134,48 @@ German umlauts (ä, ö, ü) and special characters are properly handled.
 ### French (fr)
 
 ```bash
-python synthv_translator.py -l fr -m mappings/fr.json "Je t'aime"
+python synthv_translator.py -l fr "Je t'aime"
 ```
 
 **Output:**
 ```
-<english> zh e
+<english> zh ax
 <spanish> t e m
 ```
 
 ### Italian (it)
 
 ```bash
-python synthv_translator.py -l it -m mappings/it.json "Ciao bella"
+python synthv_translator.py -l it "Ciao bella"
+```
+
+**Output:**
+```
+<english> ch <spanish> a o
+<spanish> b e l - l a
 ```
 
 ### Portuguese (pt)
 
 ```bash
-python synthv_translator.py -l pt -m mappings/pt.json "Olá mundo"
+python synthv_translator.py -l pt "Olá mundo"
+```
+
+**Output:**
+```
+<spanish> o l a
+<spanish> m u <english> ng <spanish> d <english> uh
 ```
 
 ### Russian (ru)
 
 ```bash
-python synthv_translator.py -l ru -m mappings/ru.json "Привет"
+python synthv_translator.py -l ru "Привет"
+```
+
+**Output:**
+```
+<spanish> p rr i - v e t
 ```
 
 Russian Cyrillic characters are supported via eSpeak NG.
@@ -175,12 +192,12 @@ python synthv_translator.py -p "komplexer"
 
 **Without `-p`** (syllable-level):
 ```
-<spanish> k o m - <spanish> p l e k - s e r
+<spanish> k o m - p l e - k s e
 ```
 
 **With `-p`** (phoneme-level):
 ```
-<spanish> k o m - <english> p l eh k - <english> s er
+<spanish> k <english> ao <spanish> m - p l <english> eh - <spanish> k s <english> er
 ```
 
 This gives more flexibility but may sound less natural.
@@ -192,6 +209,8 @@ Create your own mapping file or modify an existing one:
 ```bash
 python synthv_translator.py -l de -m my_custom_mapping.json "Test"
 ```
+
+The mapping file is auto-detected based on the `-l` language flag (e.g., `-l fr` uses `mappings/fr.json`). Use `-m` only when you want to override this with a custom file.
 
 This is useful for:
 - Dialect-specific pronunciations
@@ -222,11 +241,9 @@ done
 
 1. **Prepare lyrics** in a text file:
    ```
-   Verse 1:
    First line
    Second line
 
-   Chorus:
    Chorus line
    ```
 
@@ -294,11 +311,10 @@ Different SynthV voices may pronounce phonemes slightly differently:
 
 For names or foreign words in the text:
 
-```bash
-# Option 1: Use the name's original language
-python synthv_translator.py -l en "Shakespeare"
+Option 1: Use the name's original language in SynthV, e.g. "Shakespeare"
 
-# Option 2: Use alternatives to find acceptable approximation
+Option 2: Use alternatives to find acceptable approximation
+```bash
 python synthv_translator.py -l de -a 2 "Shakespeare"
 ```
 
@@ -322,7 +338,7 @@ $ python synthv_translator.py -l de "Gute Nacht"
 
 # Check alternatives for "Nacht"
 $ python synthv_translator.py -l de -a 1 "Nacht"
-[<spanish> n a x t | <spanish> n a k t]
+[<spanish> n a x t | <english> n aa hh t]
 
 # Prefer the second alternative, note it down
 
@@ -333,7 +349,8 @@ $ python synthv_translator.py -l de -i lullaby.txt -o lullaby_phonemes.txt
 $ cat lullaby_phonemes.txt
 <spanish> g u - t e
 <spanish> n a x t
-<spanish> sh l a f - <spanish> sh e n
+<spanish> sh l a f
+<spanish> sh e u n
 ```
 
 ## Common Output Patterns
@@ -394,7 +411,7 @@ $ python synthv_translator.py -l de "Bonjour"
 
 **Solution**: Use the correct language flag:
 ```bash
-$ python synthv_translator.py -l fr -m mappings/fr.json "Bonjour"
+$ python synthv_translator.py -l fr "Bonjour"
 ```
 
 ## Additional Resources

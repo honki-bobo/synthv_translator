@@ -95,9 +95,9 @@ python synthv_translator.py Dies ist ein Text in deutscher Sprache
 python synthv_translator.py -l fr "Bonjour le monde"
 ```
 
-**Use a different mapping file:**
+**Use a custom mapping file:**
 ```bash
-python synthv_translator.py -m mappings/fr.json -l fr "Bonjour"
+python synthv_translator.py -l fr -m my_custom_fr.json "Bonjour"
 ```
 
 **Read from file:**
@@ -138,7 +138,7 @@ optional arguments:
   -l {de,fr,it,pt,ru}, --lang {de,fr,it,pt,ru}
                         Language for phonemization (default: de)
   -m MAP_FILE, --map-file MAP_FILE
-                        Path to the JSON mapping file (default: mappings\de.json)
+                        Path to the JSON mapping file (default: auto-detected from language)
   -a ALTERNATIVES, --alternatives ALTERNATIVES
                         Show N alternatives. -1 = all (default: 0)
   -p, --phoneme-edit    Allow language switching per phoneme instead of per syllable
@@ -234,7 +234,7 @@ python synthv_translator.py -l de -i lyrics.txt -o phonemes.txt
 
 ### Example 4: Russian Text
 ```bash
-python synthv_translator.py -l ru -m mappings/ru.json "Привет мир"
+python synthv_translator.py -l ru "Привет мир"
 ```
 
 ## Contributing
