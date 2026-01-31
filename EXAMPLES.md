@@ -33,13 +33,14 @@ python synthv_translator.py -l fr "Bonjour"
 
 **Output:**
 ```
+Warning: The IPA sequence 'ʒuʁ' cannot be mapped into a single language.
 <spanish> b o - <english> zh <spanish> u <english> r
 ```
 
 ### Multiple Words
 
 ```bash
-python synthv_translator.py -l de "Guten Morgen Deutschland"
+python synthv_translator.py "Guten Morgen Deutschland"
 ```
 
 **Output:**
@@ -62,13 +63,13 @@ Alles schläft
 
 Run the translator:
 ```bash
-python synthv_translator.py -l de -i lyrics.txt
+python synthv_translator.py -i lyrics.txt
 ```
 
 ### Writing to a File
 
 ```bash
-python synthv_translator.py -l de -i lyrics.txt -o output.txt
+python synthv_translator.py -i lyrics.txt -o output.txt
 ```
 
 This saves the phoneme output to `output.txt`.
@@ -76,12 +77,12 @@ This saves the phoneme output to `output.txt`.
 ### Using stdin/stdout (Unix-style pipes)
 
 ```bash
-echo "Test Text" | python synthv_translator.py -l de
+echo "Test Text" | python synthv_translator.py
 ```
 
 Or:
 ```bash
-cat input.txt | python synthv_translator.py -l de > output.txt
+cat input.txt | python synthv_translator.py > output.txt
 ```
 
 ## Alternative Pronunciations
@@ -119,8 +120,10 @@ Displays every possible phoneme combination (can be very long for complex words)
 
 ### German (de)
 
+Doesn't need language switch, "de" is the default.
+
 ```bash
-python synthv_translator.py -l de "Schöne Grüße"
+python synthv_translator.py "Schöne Grüße"
 ```
 
 **Output:**
@@ -214,7 +217,7 @@ The mapping file is auto-detected based on the `-l` language flag (e.g., `-l fr`
 
 This is useful for:
 - Dialect-specific pronunciations
-- Fine-tuning phoneme choices
+- Fine-tuning phoneme choices, i.e. for a specific SynthV voice
 - Experimenting with alternative mappings
 
 ### Batch Processing
@@ -249,12 +252,12 @@ done
 
 2. **Translate**:
    ```bash
-   python synthv_translator.py -l de -i song_lyrics.txt -o phonemes.txt
+   python synthv_translator.py -i song_lyrics.txt -o phonemes.txt
    ```
 
 3. **Review alternatives** for problem words:
    ```bash
-   python synthv_translator.py -l de -a 2 "problematic-word"
+   python synthv_translator.py -a 2 "problematic-word"
    ```
 
 4. **Copy phonemes** to Synthesizer V's phoneme field
@@ -265,8 +268,8 @@ Compare how a word sounds in different SynthV voice languages:
 
 ```bash
 # German source, different mappings
-python synthv_translator.py -l de "Liebe"
-python synthv_translator.py -l de -a 2 "Liebe"  # See alternatives
+python synthv_translator.py "Liebe"
+python synthv_translator.py -a 2 "Liebe"  # See alternatives
 ```
 
 Look at the language tags to see which voice would pronounce each syllable.
@@ -283,7 +286,7 @@ Danke
 Bitte" > common_words.txt
 
 # Generate phonemes
-python synthv_translator.py -l de -i common_words.txt -o pronunciation_dict.txt
+python synthv_translator.py -i common_words.txt -o pronunciation_dict.txt
 ```
 
 Keep this as a reference for consistent pronunciation across projects.
@@ -315,7 +318,7 @@ Option 1: Use the name's original language in SynthV, e.g. "Shakespeare"
 
 Option 2: Use alternatives to find acceptable approximation
 ```bash
-python synthv_translator.py -l de -a 2 "Shakespeare"
+python synthv_translator.py -a 2 "Shakespeare"
 ```
 
 ### Tip 4: Syllable Boundary Issues
@@ -332,18 +335,18 @@ Here's a complete example session translating a German phrase:
 
 ```bash
 # Start with basic translation
-$ python synthv_translator.py -l de "Gute Nacht"
+$ python synthv_translator.py "Gute Nacht"
 <spanish> g u - t e
 <spanish> n a x t
 
 # Check alternatives for "Nacht"
-$ python synthv_translator.py -l de -a 1 "Nacht"
+$ python synthv_translator.py -a 1 "Nacht"
 [<spanish> n a x t | <english> n aa hh t]
 
 # Prefer the second alternative, note it down
 
 # Process full lyrics file
-$ python synthv_translator.py -l de -i lullaby.txt -o lullaby_phonemes.txt
+$ python synthv_translator.py -i lullaby.txt -o lullaby_phonemes.txt
 
 # Review output file
 $ cat lullaby_phonemes.txt
@@ -381,7 +384,7 @@ Shows multiple pronunciation options. Test both to see which sounds better.
 ### Problem: Output is empty
 
 ```bash
-$ python synthv_translator.py -l de ""
+$ python synthv_translator.py ""
 # No output
 ```
 
@@ -390,7 +393,7 @@ $ python synthv_translator.py -l de ""
 ### Problem: Encoding errors
 
 ```bash
-$ python synthv_translator.py -l de "café"
+$ python synthv_translator.py "café"
 # Error with special characters
 ```
 
@@ -405,7 +408,7 @@ $ python synthv_translator.py -l de "café"
 ### Problem: Wrong language phonemes
 
 ```bash
-$ python synthv_translator.py -l de "Bonjour"
+$ python synthv_translator.py "Bonjour"
 # Gets German pronunciation of French word
 ```
 
