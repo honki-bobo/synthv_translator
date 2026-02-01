@@ -231,6 +231,35 @@ python synthv_translator.py -l de -i lyrics.txt -o phonemes.txt
 python synthv_translator.py -l ru "Привет мир"
 ```
 
+## SynthV Translator Inserter Script
+
+The repository includes a Synthesizer V Studio script (`synthv_translator_inserter.js`) that applies the translator output directly to selected notes in the piano roll, setting phonemes and language overrides automatically.
+
+### Installing the Script
+
+Copy `synthv_translator_inserter.js` into the Synthesizer V scripts folder:
+
+**Windows:**
+```
+C:\Users\<username>\AppData\Roaming\Dreamtonics\Synthesizer V Studio 2\scripts
+```
+
+**macOS:**
+```
+/Library/Application Support/Dreamtonics/scripts
+```
+
+Alternatively, open Synthesizer V and go to **Scripts > Open Scripts Folder** in the menu bar, then paste the file there. After copying, select **Scripts > Rescan** to make the script appear in the Scripts menu.
+
+### Using the Script
+
+1. Run `synthv_translator.py` to generate phoneme output for your lyrics
+2. In Synthesizer V, select the notes you want to apply phonemes to
+3. Go to **Scripts > Phoneme > SynthV Translator Inserter**
+4. Paste the translator output into the dialog and click OK
+
+The script will walk through the selected notes in order and set the language override and phonemes for each note. Notes with `-` lyrics (melisma) are skipped and inherit the language of the previous note. When a syllable requires multiple languages (e.g. `<english> ch <spanish> a o`), the script automatically splits the note into sub-notes. Finally, adapt the phoneme timings to your preference in the **Phoneme Timing** lane of the piano roll.
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
