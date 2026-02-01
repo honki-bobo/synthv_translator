@@ -352,12 +352,12 @@ def ipa_convert(text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ"
 
         j += len_w
 
-    # Debug output: print IPA syllables (if terminal supports Unicode)
-    try:
-        print(ipa_list_syllables)
-    except UnicodeEncodeError:
-        # Terminal doesn't support Unicode - skip debug output
-        pass
+    # Optional debug output: print IPA syllables (if terminal supports Unicode)
+    # try:
+    #     print(ipa_list_syllables)
+    # except UnicodeEncodeError:
+    #     # Terminal doesn't support Unicode - skip debug output
+    #     pass
 
     return ipa_list_syllables
 
