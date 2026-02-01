@@ -231,7 +231,7 @@ Get-ChildItem *.txt | ForEach-Object {
 }
 ```
 
-**Linux/Mac:**
+**macOS:**
 ```bash
 for file in *.txt; do
     python synthv_translator.py -l de -i "$file" -o "${file%.txt}_phonemes.txt"
@@ -402,7 +402,7 @@ $ python synthv_translator.py "café"
 # Windows PowerShell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-# Linux/Mac - usually default UTF-8
+# macOS - usually default UTF-8
 ```
 
 ### Problem: Wrong language phonemes

@@ -38,12 +38,6 @@ A powerful command-line tool that translates text from various languages into ph
    setx PHONEMIZER_ESPEAK_LIBRARY "C:\Program Files\eSpeak NG\libespeak-ng.dll"
    ```
 4. Close and reopen PowerShell for changes to take effect
-
-**Linux:**
-```bash
-sudo apt-get install espeak-ng
-```
-
 **macOS:**
 ```bash
 brew install espeak-ng
