@@ -169,12 +169,12 @@
     ],
     "x": [
       {
-        "lang": "spanish",
-        "ph": "x"
-      },
-      {
         "lang": "mandarin",
         "ph": "kh"
+      },
+      {
+        "lang": "spanish",
+        "ph": "x"
       },
       {
         "lang": "english",
