@@ -36,7 +36,23 @@ A powerful command-line tool that translates text from various languages into ph
 - **Python 3.11 or higher**
 - **eSpeak NG** (text-to-speech engine)
 
-### Step 1: Install eSpeak NG
+### Step 1: Install Python
+
+**Windows:**
+1. Download the Python installer from [python.org](https://www.python.org/downloads/)
+2. Run the installer and make sure to check **"Add Python to PATH"**
+3. Close and reopen PowerShell for changes to take effect
+4. Verify the installation:
+   ```powershell
+   python --version
+   ```
+
+**macOS:**
+```bash
+brew install python
+```
+
+### Step 2: Install eSpeak NG
 
 **Windows:**
 1. Download the eSpeak NG installer (`espeak-ng.msi`) from [GitHub Releases](https://github.com/espeak-ng/espeak-ng/releases)
@@ -47,28 +63,56 @@ A powerful command-line tool that translates text from various languages into ph
    setx PHONEMIZER_ESPEAK_LIBRARY "C:\Program Files\eSpeak NG\libespeak-ng.dll"
    ```
 4. Close and reopen PowerShell for changes to take effect
+
 **macOS:**
 ```bash
 brew install espeak-ng
 ```
 
-### Step 2: Install Python Dependencies
+### Step 3: Download the Repository
+
+**Using git:**
+```bash
+git clone https://github.com/honki-bobo/synthv_translator.git
+cd synthv_translator
+```
+
+**Without git:**
+1. Go to the [GitHub repository](https://github.com/honki-bobo/synthv_translator)
+2. Click the green **"Code"** button, then select **"Download ZIP"**
+3. Extract the ZIP file and open a terminal in the extracted folder
+
+### Step 4: Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Or install manually:
-```bash
-pip install phonemizer pyphen
+### Step 5: Install the Inserter Script
+
+Copy `synthv_translator_inserter.js` into the Synthesizer V scripts folder:
+
+**Windows:**
+```
+C:\Users\<username>\AppData\Roaming\Dreamtonics\Synthesizer V Studio 2\scripts
 ```
 
-### Step 3: Clone the Repository
+**macOS:**
+```
+/Library/Application Support/Dreamtonics/scripts
+```
+
+Alternatively, open Synthesizer V and go to **Scripts > Open Scripts Folder** in the menu bar, then paste the file there. After copying, select **Scripts > Rescan** to make the script appear in the Scripts menu.
+
+#### Generating the Vowel Table (optional)
+
+When the inserter script splits a note across language groups, it can distribute duration proportionally so that vowels get more time than consonants. To enable this, generate a vowel table from your local Synthesizer V installation and paste it into the script:
 
 ```bash
-git clone https://github.com/honki-bobo/synthv_translator.git
-cd synthv_translator
+python generate_phoneme_inventory.py --js
 ```
+
+This prints a `var VOWELS = { ... };` declaration. Copy it and paste it into the marked comment section near the top of `synthv_translator_inserter.js`. Without the vowel table the script still works, but splits notes equally among groups.
 
 ## Usage
 
@@ -242,23 +286,7 @@ python synthv_translator.py -l ru "Привет мир"
 
 ## SynthV Translator Inserter Script
 
-The repository includes a Synthesizer V Studio script (`synthv_translator_inserter.js`) that applies the translator output directly to selected notes in the piano roll, setting phonemes and language overrides automatically.
-
-### Installing the Script
-
-Copy `synthv_translator_inserter.js` into the Synthesizer V scripts folder:
-
-**Windows:**
-```
-C:\Users\<username>\AppData\Roaming\Dreamtonics\Synthesizer V Studio 2\scripts
-```
-
-**macOS:**
-```
-/Library/Application Support/Dreamtonics/scripts
-```
-
-Alternatively, open Synthesizer V and go to **Scripts > Open Scripts Folder** in the menu bar, then paste the file there. After copying, select **Scripts > Rescan** to make the script appear in the Scripts menu.
+The repository includes a Synthesizer V Studio script (`synthv_translator_inserter.js`) that applies the translator output directly to selected notes in the piano roll, setting phonemes and language overrides automatically. See [Step 5](#step-5-install-the-inserter-script) for installation instructions.
 
 ### Using the Script
 
@@ -267,7 +295,7 @@ Alternatively, open Synthesizer V and go to **Scripts > Open Scripts Folder** in
 3. Go to **Scripts > Phoneme > SynthV Translator Inserter**
 4. Paste the translator output into the dialog and click OK
 
-The script will walk through the selected notes in order and set the language override and phonemes for each note. Notes with `-` lyrics (melisma) are skipped and inherit the language of the previous note. When a syllable requires multiple languages (e.g. `<english> ch <spanish> a o`), the script automatically splits the note into sub-notes. Finally, adapt the phoneme timings to your preference in the **Phoneme Timing** lane of the piano roll.
+The script will walk through the selected notes in order and set the language override and phonemes for each note. Notes with `-` lyrics (melisma), `br` (breath), and `'` (glottal stop) are skipped. When a syllable requires multiple languages (e.g. `<english> ch <spanish> a o`), the script automatically splits the note into sub-notes. Finally, adapt the phoneme timings to your preference in the **Phoneme Timing** lane of the piano roll.
 
 ## Contributing
 
@@ -277,7 +305,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 To add support for a new language:
 
-1. Generate a phoneme reference (requires local SynthV installation):
+1. (Optional, but helpful) Generate a phoneme reference (requires local SynthV installation):
    ```bash
    python generate_phoneme_inventory.py
    ```
