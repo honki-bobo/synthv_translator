@@ -100,13 +100,51 @@ def generate_inventory(clf_data_path):
     return inventory
 
 
+def generate_js_vowel_table(inventory):
+    """Generate a JS variable declaration mapping each language to its vowel phonemes.
+
+    Output is suitable for pasting into synthv_translator_inserter.js.
+    """
+    vowel_categories = {"vowel", "diphthong"}
+    vowels_by_lang = {}
+
+    for notation, languages in inventory.items():
+        if notation == "common":
+            continue
+        if not isinstance(languages, dict):
+            continue
+        for language, categories in languages.items():
+            if not isinstance(categories, dict):
+                continue
+            phonemes = []
+            for cat in vowel_categories:
+                if cat in categories:
+                    phonemes.extend(categories[cat])
+            if phonemes:
+                vowels_by_lang[language] = sorted(set(phonemes))
+
+    lines = ["var VOWELS = {"]
+    lang_items = sorted(vowels_by_lang.items())
+    for i, (lang, phonemes) in enumerate(lang_items):
+        # Build a lookup object: {"aa": 1, "ae": 1, ...}
+        entries = ", ".join(f'"{ph.replace(chr(92), chr(92)*2)}": 1' for ph in phonemes)
+        comma = "," if i < len(lang_items) - 1 else ""
+        lines.append(f'  "{lang}": {{{entries}}}{comma}')
+    lines.append("};")
+
+    return "\n".join(lines)
+
+
 def main():
     # Default path for Windows installation
     default_path = r"C:\Program Files\Synthesizer V Studio 2 Pro\clf-data"
 
-    # Use command-line argument if provided, otherwise use default
-    if len(sys.argv) > 1:
-        clf_data_path = sys.argv[1]
+    # Parse arguments
+    js_mode = "--js" in sys.argv
+    args = [a for a in sys.argv[1:] if a != "--js"]
+
+    if args:
+        clf_data_path = args[0]
     else:
         clf_data_path = default_path
 
@@ -117,6 +155,15 @@ def main():
 
     if inventory is None:
         sys.exit(1)
+
+    if js_mode:
+        # Output JS vowel table for synthv_translator_inserter.js
+        print()
+        print(generate_js_vowel_table(inventory))
+        print()
+        print("// Paste the above into synthv_translator_inserter.js",
+              file=sys.stderr)
+        return
 
     # Determine output path (mappings directory relative to this script)
     script_dir = Path(__file__).parent

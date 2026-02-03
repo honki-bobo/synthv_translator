@@ -14,6 +14,37 @@ function getClientInfo() {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Vowel table: paste the output of generate_phoneme_inventory.py --js here.
+// This table maps each language to its vowel and diphthong phonemes, used to
+// give vowels more weight when splitting notes across language groups.
+// If absent, all phonemes are weighted equally.
+
+
+
+// ---------------------------------------------------------------------------
+
+/**
+ * Calculate the weight of a phoneme group's phonemes.
+ * Vowels/diphthongs get weight 2, all other phonemes get weight 1.
+ * Falls back to equal weight (1 per phoneme) if VOWELS is not defined.
+ */
+function getGroupWeight(group) {
+  var phonemeList = group.phonemes.split(/\s+/);
+  if (typeof VOWELS === "undefined") {
+    return phonemeList.length;
+  }
+  var langVowels = VOWELS[group.lang];
+  if (!langVowels) {
+    return phonemeList.length;
+  }
+  var weight = 0;
+  for (var i = 0; i < phonemeList.length; i++) {
+    weight += langVowels[phonemeList[i]] ? 2 : 1;
+  }
+  return weight;
+}
+
 /**
  * Strip brackets and take the first alternative before " | ".
  */
@@ -132,36 +163,55 @@ function countSyllableNotes(notes) {
 
 /**
  * Split a note into multiple sub-notes when a syllable has multiple language
- * groups. The first group reuses the original note; subsequent groups create
- * new "-" (melisma) notes at equally divided durations.
+ * groups. Duration is distributed proportionally to each group's phoneme
+ * weight (vowels count more than consonants). The first group reuses the
+ * original note; subsequent groups create new "-" (melisma) notes.
  */
 function splitNoteForGroups(note, groups, noteGroup) {
   var onset = note.getOnset();
   var duration = note.getDuration();
   var pitch = note.getPitch();
-  var numGroups = groups.length;
-  var subDuration = Math.floor(duration / numGroups);
+
+  // Calculate weights for proportional duration splitting
+  var weights = [];
+  var totalWeight = 0;
+  for (var i = 0; i < groups.length; i++) {
+    var w = getGroupWeight(groups[i]);
+    weights.push(w);
+    totalWeight += w;
+  }
+
+  // Calculate durations and onsets from weights
+  var durations = [];
+  var usedDuration = 0;
+  for (var i = 0; i < groups.length; i++) {
+    if (i === groups.length - 1) {
+      // Last group gets remaining duration to avoid rounding gaps
+      durations.push(duration - usedDuration);
+    } else {
+      var d = Math.floor(duration * weights[i] / totalWeight);
+      durations.push(d);
+      usedDuration += d;
+    }
+  }
 
   // First group: modify the original note in place
-  note.setDuration(subDuration);
+  note.setDuration(durations[0]);
   note.setLanguageOverride(groups[0].lang);
   note.setPhonemes(groups[0].phonemes);
 
   // Remaining groups: create new notes
-  for (var i = 1; i < numGroups; i++) {
+  var currentOnset = onset + durations[0];
+  for (var i = 1; i < groups.length; i++) {
     var newNote = SV.create("Note");
-    newNote.setOnset(onset + i * subDuration);
-    // Last sub-note gets remaining duration to avoid rounding gaps
-    if (i === numGroups - 1) {
-      newNote.setDuration(duration - i * subDuration);
-    } else {
-      newNote.setDuration(subDuration);
-    }
+    newNote.setOnset(currentOnset);
+    newNote.setDuration(durations[i]);
     newNote.setPitch(pitch);
     newNote.setLyrics("-");
     newNote.setLanguageOverride(groups[i].lang);
     newNote.setPhonemes(groups[i].phonemes);
     noteGroup.addNote(newNote);
+    currentOnset += durations[i];
   }
 }
 
