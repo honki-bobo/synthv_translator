@@ -109,13 +109,21 @@ function parseInput(text) {
 }
 
 /**
- * Count how many of the selected notes consume a syllable (i.e. lyrics != "-").
- * "+" notes consume a syllable (syllable split), "-" notes do not (melisma).
+ * Check whether a note's lyrics indicate it should be skipped (no syllable consumed).
+ * Skipped: "-" (melisma), "br" (breath), "'" (standalone glottal stop).
+ */
+function isSkippedNote(lyrics) {
+  return lyrics === "-" || lyrics === "br" || lyrics === "'";
+}
+
+/**
+ * Count how many of the selected notes consume a syllable.
+ * Skipped notes ("-", "br", "'") do not consume syllables.
  */
 function countSyllableNotes(notes) {
   var count = 0;
   for (var i = 0; i < notes.length; i++) {
-    if (notes[i].getLyrics() !== "-") {
+    if (!isSkippedNote(notes[i].getLyrics())) {
       count++;
     }
   }
@@ -240,9 +248,9 @@ function main() {
     var note = selectedNotes[ni];
     var lyrics = note.getLyrics();
 
-    if (lyrics === "-") {
-      // Melisma note: continues previous vowel, don't consume syllable
-      if (lastLang !== null) {
+    if (isSkippedNote(lyrics)) {
+      // Melisma "-", breath "br", or glottal stop "'": don't consume syllable
+      if (lastLang !== null && lyrics !== "br") {
         note.setLanguageOverride(lastLang);
       }
     } else {
