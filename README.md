@@ -10,6 +10,7 @@ A powerful command-line tool that translates text from various languages into ph
 - **Alternative Pronunciations**: Generate multiple pronunciation alternatives with weighted ranking
 - **Language Switching Optimization**: Minimizes language switches within syllables for more natural results
 - **Flexible Output**: Support for single or multiple alternative phoneme sequences
+- **Simple Integration**: Includes script for Synthesizer V to easily apply output to selected notes in piano roll
 
 ## How It Works
 
@@ -18,7 +19,15 @@ A powerful command-line tool that translates text from various languages into ph
 3. **IPA Conversion**: Converts syllables to International Phonetic Alphabet (IPA) using eSpeak NG
 4. **Phoneme Alignment**: Aligns syllable boundaries with correct phonology
 5. **SynthV Mapping**: Maps IPA phonemes to Synthesizer V phonemes across available voice languages
-6. **Output**: Generates formatted phoneme sequences ready for Synthesizer V
+6. **Output**: Generates formatted phoneme sequences ready for copy-pasting into Synthesizer V using supplied script
+
+## Workflow
+
+1. Create your melody in Synthesizer V
+2. Choose any language and enter lyrics (including special symbols "+", "-", etc) in Synthesizer V
+3. Use lyrics without special symbols in synthv_translator.py and generate output
+4. Copy output and paste it into Synthesizer V using the provided script
+5. Adjust phoneme timings in piano roll
 
 ## Installation
 
