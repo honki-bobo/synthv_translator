@@ -31,23 +31,20 @@ A powerful command-line tool that translates text from various languages into ph
 
 ## Installation
 
-### Prerequisites
-
-- **Python 3.11 or higher**
-- **eSpeak NG** (text-to-speech engine)
-
 ### Step 1: Install Python
 
 **Windows:**
 1. Download the Python installer from [python.org](https://www.python.org/downloads/)
 2. Run the installer and make sure to check **"Add Python to PATH"**
-3. Close and reopen PowerShell for changes to take effect
+3. Open PowerShell
 4. Verify the installation:
    ```powershell
    python --version
    ```
 
 **macOS:**
+
+Open a terminal and run
 ```bash
 brew install python
 ```
@@ -65,6 +62,8 @@ brew install python
 4. Close and reopen PowerShell for changes to take effect
 
 **macOS:**
+
+Open a terminal and run
 ```bash
 brew install espeak-ng
 ```
@@ -120,7 +119,7 @@ This prints a `var VOWELS = { ... };` declaration. Copy it and paste it into the
 
 Translate text directly from command line:
 
-```bash
+```
 python synthv_translator.py Dies ist ein Text in deutscher Sprache
 ```
 
@@ -245,6 +244,8 @@ Mapping files define how IPA phonemes are converted to Synthesizer V phonemes. E
 - **ipa_process**: Regex patterns for IPA post-processing
 - **phoneme_map**: Maps IPA phonemes to SynthV phonemes with optional weights
 
+For more details on mapping files see [MAPPING_GUIDE.md](MAPPING_GUIDE.md).
+
 ## Supported Languages
 
 Currently supported input languages:
@@ -265,8 +266,10 @@ Synthesizer V output languages:
 ## Examples
 
 ### Example 1: German to SynthV
+
+German is the default language and doesn't need language parameter
 ```bash
-python synthv_translator.py -l de "Guten Morgen"
+python synthv_translator.py "Guten Morgen"
 ```
 
 ### Example 2: French with Alternatives
@@ -276,7 +279,7 @@ python synthv_translator.py -l fr -a 1 "Bonjour le monde"
 
 ### Example 3: Processing a File
 ```bash
-python synthv_translator.py -l de -i lyrics.txt -o phonemes.txt
+python synthv_translator.py -i lyrics.txt -o phonemes.txt
 ```
 
 ### Example 4: Russian Text
@@ -284,16 +287,19 @@ python synthv_translator.py -l de -i lyrics.txt -o phonemes.txt
 python synthv_translator.py -l ru "Привет мир"
 ```
 
+For more extensive and advanced examples see [EXAMPLES.md](EXAMPLES.md).
+
 ## SynthV Translator Inserter Script
 
 The repository includes a Synthesizer V Studio script (`synthv_translator_inserter.js`) that applies the translator output directly to selected notes in the piano roll, setting phonemes and language overrides automatically. See [Step 5](#step-5-install-the-inserter-script) for installation instructions.
 
 ### Using the Script
 
-1. Run `synthv_translator.py` to generate phoneme output for your lyrics
-2. In Synthesizer V, select the notes you want to apply phonemes to
-3. Go to **Scripts > Phoneme > SynthV Translator Inserter**
-4. Paste the translator output into the dialog and click OK
+1. Enter your melody and lyrics into Synthesizer V
+2. Run `synthv_translator.py` to generate phoneme output for your lyrics
+3. In Synthesizer V, select the notes you want to apply phonemes to
+4. Go to **Scripts > Phoneme > SynthV Translator Inserter**
+5. Paste the translator output into the dialog and click OK
 
 The script will walk through the selected notes in order and set the language override and phonemes for each note. Notes with `-` lyrics (melisma), `br` (breath), and `'` (glottal stop) are skipped. When a syllable requires multiple languages (e.g. `<english> ch <spanish> a o`), the script automatically splits the note into sub-notes. Finally, adapt the phoneme timings to your preference in the **Phoneme Timing** lane of the piano roll.
 
@@ -318,7 +324,7 @@ To add support for a new language:
 
 ## License
 
-This project is provided as-is for the Synthesizer V community. Please respect Dreamtonics' terms of service when using Synthesizer V.
+This project is provided as-is for the Synthesizer V community. Please respect Dreamtonics' terms of service when using Synthesizer V. See [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
