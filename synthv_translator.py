@@ -22,14 +22,14 @@ Repository: https://github.com/honki-bobo/synthv_translator
 """
 
 import argparse
-import json
-import sys
-import re
-from phonemizer import phonemize
-import itertools
 import difflib
-import pyphen
+import itertools
+import json
+import re
+import sys
 
+import pyphen
+from phonemizer import phonemize
 
 
 def load_mapping(map_file: str) -> dict:
@@ -59,7 +59,9 @@ def load_mapping(map_file: str) -> dict:
         sys.exit(1)
 
 
-def project_syllables_from_ipa(syllable_ipa_list: list[str], word_ipa: str) -> list[str]:
+def project_syllables_from_ipa(
+    syllable_ipa_list: list[str], word_ipa: str
+) -> list[str]:
     """
     Align syllable-level IPA with word-level IPA and project syllable boundaries.
 
@@ -115,7 +117,7 @@ def project_syllables_from_ipa(syllable_ipa_list: list[str], word_ipa: str) -> l
             # Character(s) present in syllable IPA but not in word IPA
             for k in range(i1, i2):
                 alignment.append((flat_syl_ipa[k], "_"))
-    
+
     # Calculate where syllable boundaries should be in the flattened syllable IPA
     # These positions will be used to cut the aligned word IPA
     boundary_positions = []
@@ -157,17 +159,19 @@ def project_syllables_from_ipa(syllable_ipa_list: list[str], word_ipa: str) -> l
         if i < len(result) - 1:
             # Check if there's a geminate in the original syllabification
             left = syllable_ipa_list[i]
-            right = syllable_ipa_list[i+1]
+            right = syllable_ipa_list[i + 1]
             if left and right and left[-1] == right[0]:
                 # Geminate found: last char of left = first char of right
                 # Make sure next syllable starts with the geminate consonant
-                if not result[i+1].startswith(left[-1]):
-                    result[i+1] = left[-1] + result[i+1]
+                if not result[i + 1].startswith(left[-1]):
+                    result[i + 1] = left[-1] + result[i + 1]
 
     return fixed_result
 
 
-def syllabify_orthographically(text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ") -> list[list[str]]:
+def syllabify_orthographically(
+    text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ"
+) -> list[list[str]]:
     """
     Split text into syllables based on orthographic rules.
 
@@ -213,10 +217,10 @@ def syllabify_orthographically(text: str, lang: str = "de", vowels_orth: str = "
 
         # Fix grapheme clusters that should stay together
         # Move "ph" from right syllable to left when followed by "th"
-        for i in range(len(syls)-1):
-            if syls[i+1].startswith("phth"):
+        for i in range(len(syls) - 1):
+            if syls[i + 1].startswith("phth"):
                 syls[i] += "ph"
-                syls[i+1] = syls[i+1][2:]
+                syls[i + 1] = syls[i + 1][2:]
 
         # Merge consonant-only syllables with adjacent syllables
         # A syllable with no vowels is likely an incorrect split
@@ -273,7 +277,9 @@ def post_process_ipa(ipa_string: str, ipa_process: list[list] = []) -> str:
     return ipa_string
 
 
-def ipa_convert(text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ", ipa_process: list = []) -> list[list[str]]:
+def ipa_convert(
+    text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ", ipa_process: list = []
+) -> list[list[str]]:
     """
     Convert text to IPA phonemes with syllable boundaries.
 
@@ -307,28 +313,34 @@ def ipa_convert(text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ"
     # Step 2: Phonemize each syllable individually
     # Flatten all syllables into a single list for batch processing
     syllable_tokens = [syl for word in syllabified_words for syl in word]
-    ipa_list = [post_process_ipa(syl, ipa_process) for syl in phonemize(
-        syllable_tokens,
-        language="fr-fr" if lang == "fr" else lang,  # eSpeak uses "fr-fr" not "fr"
-        backend="espeak",
-        strip=True,
-        preserve_punctuation=False,
-        with_stress=False,  # Disable stress marks
-        language_switch="remove-flags"  # Don't insert language switch markers
-    )]
+    ipa_list = [
+        post_process_ipa(syl, ipa_process)
+        for syl in phonemize(
+            syllable_tokens,
+            language="fr-fr" if lang == "fr" else lang,  # eSpeak uses "fr-fr" not "fr"
+            backend="espeak",
+            strip=True,
+            preserve_punctuation=False,
+            with_stress=False,  # Disable stress marks
+            language_switch="remove-flags",  # Don't insert language switch markers
+        )
+    ]
 
     # Step 3: Phonemize multi-syllable words as whole units
     # This gives us the correct phonology for the whole word
     word_tokens = ["".join(w) for w in syllabified_words if len(w) > 1]
-    ipa_list_words = [post_process_ipa(word, ipa_process) for word in phonemize(
-        word_tokens,
-        language="fr-fr" if lang == "fr" else lang,
-        backend="espeak",
-        strip=True,
-        preserve_punctuation=False,
-        with_stress=False,
-        language_switch="remove-flags"
-    )]
+    ipa_list_words = [
+        post_process_ipa(word, ipa_process)
+        for word in phonemize(
+            word_tokens,
+            language="fr-fr" if lang == "fr" else lang,
+            backend="espeak",
+            strip=True,
+            preserve_punctuation=False,
+            with_stress=False,
+            language_switch="remove-flags",
+        )
+    ]
 
     # Step 4: Combine syllable boundaries with correct word phonology
     # For single-syllable words: use syllable IPA directly
@@ -345,9 +357,11 @@ def ipa_convert(text: str, lang: str = "de", vowels_orth: str = "aeiouyäöüÿ"
             ipa_list_syllables.append([ipa_list[j]])
         else:
             # Multi-syllable: align syllable boundaries with word phonology
-            syllable_ipa_list = ipa_list[j:j+len_w]
+            syllable_ipa_list = ipa_list[j : j + len_w]
             word_ipa = ipa_list_words[k]
-            ipa_list_syllables.append(project_syllables_from_ipa(syllable_ipa_list, word_ipa))
+            ipa_list_syllables.append(
+                project_syllables_from_ipa(syllable_ipa_list, word_ipa)
+            )
             k += 1
 
         j += len_w
@@ -381,7 +395,12 @@ def ipa_list_to_str(ipa_list: list[list[str]]) -> str:
     return " ".join(ipa_words)
 
 
-def get_syllable_alternatives(phoneme_seq: list[str], phoneme_map: dict, n_alternatives: int = 0, phoneme_edit: bool = False) -> list[dict]:
+def get_syllable_alternatives(
+    phoneme_seq: list[str],
+    phoneme_map: dict,
+    n_alternatives: int = 0,
+    phoneme_edit: bool = False,
+) -> list[dict]:
     """
     Generate all possible language-specific phoneme combinations with weights and single_lang flag.
 
@@ -450,20 +469,29 @@ def get_syllable_alternatives(phoneme_seq: list[str], phoneme_map: dict, n_alter
     min_n_langs = min(entry["n_langs"] for entry in alternatives)
     if min_n_langs > 1 and not phoneme_edit:
         # Warn if no single-language mapping exists and phoneme_edit is disabled
-        print(f"Warning: The IPA sequence '{''.join(phoneme_seq)}' cannot be mapped into a single language.", file=sys.stderr)
+        print(
+            f"Warning: The IPA sequence '{''.join(phoneme_seq)}' cannot be mapped into a single language.",
+            file=sys.stderr,
+        )
 
     # If phoneme_edit is True, allow language switching within syllable
     # Otherwise, only return options with minimum number of languages
-    results = alternatives if phoneme_edit else [entry for entry in alternatives if entry["n_langs"] == min_n_langs]
+    results = (
+        alternatives
+        if phoneme_edit
+        else [entry for entry in alternatives if entry["n_langs"] == min_n_langs]
+    )
 
     # Return requested number of alternatives
     if n_alternatives == -1:
         return results  # Return all
     elif n_alternatives >= 0:
-        return results[:min(len(results), n_alternatives + 1)]  # Return top N+1
+        return results[: min(len(results), n_alternatives + 1)]  # Return top N+1
 
 
-def segment_syllable(syllable: str, phoneme_map: dict, key_lengths: list[int]) -> list[str]:
+def segment_syllable(
+    syllable: str, phoneme_map: dict, key_lengths: list[int]
+) -> list[str]:
     """
     Segment an IPA syllable into individual phonemes using longest-match-first.
 
@@ -513,12 +541,12 @@ def segment_syllable(syllable: str, phoneme_map: dict, key_lengths: list[int]) -
 
 
 def convert_ipa_to_sv(
-        ipa_list: list[list[str]],
-        phoneme_map: dict,
-        key_lengths: list[int],
-        n_alternatives: int = 0,
-        phoneme_edit: bool = False
-    ) -> list[list[list[dict]]]:
+    ipa_list: list[list[str]],
+    phoneme_map: dict,
+    key_lengths: list[int],
+    n_alternatives: int = 0,
+    phoneme_edit: bool = False,
+) -> list[list[list[dict]]]:
     """
     Convert IPA syllables to Synthesizer V phoneme sequences.
 
@@ -550,7 +578,9 @@ def convert_ipa_to_sv(
             phoneme_seq = segment_syllable(syl, phoneme_map, key_lengths)
 
             # Generate alternative SynthV mappings for this phoneme sequence
-            alternatives = get_syllable_alternatives(phoneme_seq, phoneme_map, n_alternatives, phoneme_edit)
+            alternatives = get_syllable_alternatives(
+                phoneme_seq, phoneme_map, n_alternatives, phoneme_edit
+            )
             sv_word.append(alternatives)
 
         result.append(sv_word)
@@ -647,43 +677,41 @@ def main():
         description="Text → Synthesizer V phoneme translator"
     )
     parser.add_argument(
-        "-i", "--input",
-        type=str,
-        help="Input text file (optional, defaults to stdin)"
+        "-i", "--input", type=str, help="Input text file (optional, defaults to stdin)"
     )
     parser.add_argument(
-        "-l", "--lang",
+        "-l",
+        "--lang",
         type=str,
         choices=["de", "fr", "it", "pt", "ru"],
         default="de",
-        help="Language for phonemization (default: de)"
+        help="Language for phonemization (default: de)",
     )
     parser.add_argument(
-        "-m", "--map-file",
+        "-m",
+        "--map-file",
         type=str,
         default=None,
-        help="Path to the JSON mapping file (default: auto-detected from language)"
+        help="Path to the JSON mapping file (default: auto-detected from language)",
     )
     parser.add_argument(
-        "-a", "--alternatives",
+        "-a",
+        "--alternatives",
         type=int,
         default=0,
-        help="Show N alternatives. -1 = all (default: 0)"
+        help="Show N alternatives. -1 = all (default: 0)",
     )
     parser.add_argument(
-        "-p", "--phoneme-edit",
+        "-p",
+        "--phoneme-edit",
         action="store_true",
-        help="Allow language switching per phoneme instead of per syllable"
+        help="Allow language switching per phoneme instead of per syllable",
     )
     parser.add_argument(
-        "-o", "--output",
-        type=str,
-        help="Output file (optional, defaults to stdout)"
+        "-o", "--output", type=str, help="Output file (optional, defaults to stdout)"
     )
     parser.add_argument(
-        "words",
-        nargs="*",
-        help="Words to translate (ignored if -i is used)"
+        "words", nargs="*", help="Words to translate (ignored if -i is used)"
     )
     args = parser.parse_args()
 
@@ -693,9 +721,9 @@ def main():
 
     # Load the phoneme mapping configuration
     mapping = load_mapping(args.map_file)
-    phoneme_map = mapping["phoneme_map"]         # IPA → SynthV mappings
-    vowels_orth = mapping["vowels_orth"]         # Orthographic vowels
-    ipa_process = mapping["ipa_process"]         # IPA post-processing rules
+    phoneme_map = mapping["phoneme_map"]  # IPA → SynthV mappings
+    vowels_orth = mapping["vowels_orth"]  # Orthographic vowels
+    ipa_process = mapping["ipa_process"]  # IPA post-processing rules
 
     # Pre-calculate phoneme lengths for efficient segmentation
     # Sort descending so we try longest matches first
@@ -719,11 +747,7 @@ def main():
 
     # 2. IPA → SynthV phonemes with alternatives
     alternatives = convert_ipa_to_sv(
-        ipa_list,
-        phoneme_map,
-        key_lengths,
-        args.alternatives,
-        args.phoneme_edit
+        ipa_list, phoneme_map, key_lengths, args.alternatives, args.phoneme_edit
     )
 
     # 3. Format output with language tags
