@@ -20,3 +20,7 @@ Thumbs.db
 # and should not be redistributed due to licensing
 mappings/*_phonemes.json
 mappings/sv_phoneme_inventory.json
+
+# python virtual environments
+venv
+.venv
