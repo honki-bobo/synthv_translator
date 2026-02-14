@@ -27,12 +27,15 @@ import itertools
 import json
 import re
 import sys
+from os import PathLike
+from pathlib import Path
+from typing import Union
 
 import pyphen
 from phonemizer import phonemize
 
 
-def load_mapping(map_file: str) -> dict:
+def load_mapping(map_file: Union[str, PathLike]) -> dict:
     """
     Load and parse a phoneme mapping file.
 
@@ -717,7 +720,7 @@ def main():
 
     # Auto-detect mapping file based on language if not specified
     if args.map_file is None:
-        args.map_file = f"mappings\\{args.lang}.json"
+        args.map_file = Path(__file__).parent / "mappings" / f"{args.lang}.json"
 
     # Load the phoneme mapping configuration
     mapping = load_mapping(args.map_file)
@@ -762,4 +765,5 @@ def main():
 
 
 if __name__ == "__main__":
+    main()
     main()
