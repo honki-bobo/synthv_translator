@@ -6,8 +6,11 @@ This guide explains how phoneme mapping works in Synthesizer V Translator and ho
 
 - [Understanding Phoneme Mapping](#understanding-phoneme-mapping)
 - [Mapping File Structure](#mapping-file-structure)
-  - [word_prefs](#section-4-word_prefs-optional)
-  - [syl_prefs](#section-5-syl_prefs-optional)
+  - [vowels_orth](#section-1-vowels_orth)
+  - [ipa_process](#section-2-ipa_process)
+  - [word_prefs](#section-3-word_prefs-optional)
+  - [syl_prefs](#section-4-syl_prefs-optional)
+  - [phoneme_map](#section-5-phoneme_map)
 - [IPA to SynthV Conversion](#ipa-to-synthv-conversion)
 - [Weighting System](#weighting-system)
 - [Creating a New Mapping](#creating-a-new-mapping)
@@ -35,7 +38,7 @@ Input Text → eSpeak (IPA) → Mapping File → SynthV Phonemes
 
 ## Mapping File Structure
 
-A mapping file is a JSON file with three main sections:
+A mapping file is a JSON file with five sections (three required, two optional):
 
 ```json
 {
@@ -43,6 +46,12 @@ A mapping file is a JSON file with three main sections:
   "ipa_process": [
     ["pattern", "replacement"]
   ],
+  "word_prefs": {
+    "frühling": "<mandarin> f 7 y - <cantonese> l I N"
+  },
+  "syl_prefs": {
+    "schön": "<english> sh ey uw"
+  },
   "phoneme_map": {
     "ipa_phoneme": [
       {"lang": "language", "ph": "synthv_phoneme", "weight": 2.0}
@@ -92,7 +101,51 @@ Each entry is a `[pattern, replacement]` pair using Python regex syntax.
 ```
 Changes [r] or [ɾ] after consonants to [ʁ] (uvular fricative).
 
-### Section 3: phoneme_map
+### Section 3: word_prefs (optional)
+
+**Purpose**: Override the entire translation output for specific words
+
+```json
+"word_prefs": {
+    "frühling": "<mandarin> f 7 y - <cantonese> l I N",
+    "deutschland": "<spanish> d o e u t sh - <english> l ae n d"
+}
+```
+
+- Keys are **case-insensitive** (e.g. `"frühling"` matches "Frühling" in the input)
+- Values use the same format as the translator output: `<language> phoneme ...`, syllables separated by ` - `
+- Values can contain multiple language switches within a single syllable (e.g. `<english> ch <spanish> a o`)
+- When a word matches, the automatic translation is completely replaced by the preference
+- Takes **precedence** over `syl_prefs` for the same word
+
+Use this when you've found a better phoneme sequence for an entire word through manual experimentation in Synthesizer V.
+
+### Section 4: syl_prefs (optional)
+
+**Purpose**: Override the translation output for specific syllables
+
+```json
+"syl_prefs": {
+    "früh": "<mandarin> f 7 y",
+    "ling": "<cantonese> l I N",
+    "schön": "<english> sh ey uw"
+}
+```
+
+- Keys are **case-insensitive** and matched against orthographic syllables after syllabification
+- Values use the same format: `<language> phoneme ...` for a single syllable
+- Overrides are **global**: a syllable like "ling" is replaced wherever it appears in any word
+- Ignored for words that already have a `word_prefs` match
+
+Use this when a particular syllable consistently translates poorly and you've found a better alternative. This is especially useful for syllables that appear across many words.
+
+### Precedence Rules
+
+1. **word_prefs** is checked first. If a word matches, its entire output is replaced and `syl_prefs` is not consulted for that word.
+2. **syl_prefs** is checked for each syllable of words that have no `word_prefs` match.
+3. Syllables with no preference match use the automatic translation as before.
+
+### Section 5: phoneme_map
 
 **Purpose**: Maps each IPA phoneme to possible SynthV equivalents
 
@@ -139,49 +192,6 @@ The order matters for two reasons:
 1. Most accurate phonetic match first
 2. Close approximations next
 3. Acceptable fallbacks last
-
-### Section 4: word_prefs (optional)
-
-**Purpose**: Override the entire translation output for specific words
-
-```json
-"word_prefs": {
-    "frühling": "<mandarin> f 7 y - <cantonese> l I N",
-    "deutschland": "<spanish> d o e u t sh - <english> l ae n d"
-}
-```
-
-- Keys are **case-insensitive** (e.g. `"frühling"` matches "Frühling" in the input)
-- Values use the same format as the translator output: `<language> phoneme ...`, syllables separated by ` - `
-- When a word matches, the automatic translation is completely replaced by the preference
-- Takes **precedence** over `syl_prefs` for the same word
-
-Use this when you've found a better phoneme sequence for an entire word through manual experimentation in Synthesizer V.
-
-### Section 5: syl_prefs (optional)
-
-**Purpose**: Override the translation output for specific syllables
-
-```json
-"syl_prefs": {
-    "früh": "<mandarin> f 7 y",
-    "ling": "<cantonese> l I N",
-    "schön": "<english> sh ey uw"
-}
-```
-
-- Keys are **case-insensitive** and matched against orthographic syllables after syllabification
-- Values use the same format: `<language> phoneme ...` for a single syllable
-- Overrides are **global**: a syllable like "ling" is replaced wherever it appears in any word
-- Ignored for words that already have a `word_prefs` match
-
-Use this when a particular syllable consistently translates poorly and you've found a better alternative. This is especially useful for syllables that appear across many words.
-
-### Precedence Rules
-
-1. **word_prefs** is checked first. If a word matches, its entire output is replaced and `syl_prefs` is not consulted for that word.
-2. **syl_prefs** is checked for each syllable of words that have no `word_prefs` match.
-3. Syllables with no preference match use the automatic translation as before.
 
 ## IPA to SynthV Conversion
 
@@ -373,6 +383,8 @@ English "ch" works best for [tʃ], weight boosts it significantly.
 {
   "vowels_orth": "",
   "ipa_process": [],
+  "word_prefs": {},
+  "syl_prefs": {},
   "phoneme_map": {}
 }
 ```
