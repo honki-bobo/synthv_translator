@@ -226,6 +226,12 @@ Mapping files define how IPA phonemes are converted to Synthesizer V phonemes. E
     ["([^aeiouyäöüɛɔœøɐəɜ])(ɾ|r)", "\\1ʁ"],
     ["^(ɾ|r)", "ʁ"]
   ],
+  "word_prefs": {
+    "frühling": "<mandarin> f 7 y - <cantonese> l I N"
+  },
+  "syl_prefs": {
+    "schön": "<english> sh ey uw"
+  },
   "phoneme_map": {
     "b": [
       {"lang": "spanish", "ph": "b"},
@@ -242,7 +248,11 @@ Mapping files define how IPA phonemes are converted to Synthesizer V phonemes. E
 
 - **vowels_orth**: Orthographic vowels for syllabification
 - **ipa_process**: Regex patterns for IPA post-processing
+- **word_prefs**: (optional) Preferred phoneme sequences for specific words, checked before automatic translation
+- **syl_prefs**: (optional) Preferred phoneme sequences for specific syllables, checked when no word_prefs match applies
 - **phoneme_map**: Maps IPA phonemes to SynthV phonemes with optional weights
+
+Both `word_prefs` and `syl_prefs` use the same format as the translator output (`<language> phoneme ...`). Keys are case-insensitive.
 
 For more details on mapping files see [MAPPING_GUIDE.md](MAPPING_GUIDE.md).
 
