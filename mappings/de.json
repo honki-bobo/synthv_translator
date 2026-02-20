@@ -4,6 +4,12 @@
       ["([^aeiouyäöüɛɔœøɐəɜ])(ɾ|r)", "\\1ʁ"],
       ["^(ɾ|r)", "ʁ"]
   ],
+  "word_prefs": {
+  },
+  "syl_prefs": {
+    "früh": "<mandarin> f 7 y",
+    "ling": "<cantonese> l I N"
+  },
   "phoneme_map": {
     "b": [
       {

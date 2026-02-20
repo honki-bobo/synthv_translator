@@ -668,6 +668,126 @@ def get_output_string(alternatives) -> str:
     return "\n".join(output_groups)
 
 
+def parse_pref_string(pref_string: str) -> list[list[dict]]:
+    """
+    Parse a preference string into the internal alternatives format.
+
+    Preference strings use the same format as the translator output:
+        "<mandarin> f 7 y - <cantonese> l I N"
+
+    Args:
+        pref_string: Preference string with language tags and phonemes,
+                     syllables separated by " - "
+
+    Returns:
+        list[list[dict]]: One list per syllable, each containing a single
+        alternative dict with keys: weight, n_langs, mapping.
+
+    Raises:
+        ValueError: If a phoneme has no preceding language tag or a syllable
+                    contains no phonemes.
+    """
+    syllable_strings = pref_string.split(" - ")
+    result = []
+
+    for syl_str in syllable_strings:
+        tokens = syl_str.strip().split()
+        mapping = []
+        current_lang = None
+
+        for token in tokens:
+            lang_match = re.match(r"^<(\w+)>$", token)
+            if lang_match:
+                current_lang = lang_match.group(1)
+            else:
+                if current_lang is None:
+                    raise ValueError(
+                        f"Phoneme '{token}' in preference '{pref_string}' "
+                        f"has no preceding language tag."
+                    )
+                mapping.append({"lang": current_lang, "ph": token})
+
+        if not mapping:
+            raise ValueError(
+                f"Syllable '{syl_str}' in preference '{pref_string}' "
+                f"contains no phonemes."
+            )
+
+        n_langs = len(set(entry["lang"] for entry in mapping))
+        result.append([{"weight": 0, "n_langs": n_langs, "mapping": mapping}])
+
+    return result
+
+
+def apply_preferences(
+    alternatives: list[list[list[dict]]],
+    orth_syllables: list[list[str]],
+    words: list[str],
+    word_prefs: dict[str, str],
+    syl_prefs: dict[str, str],
+) -> list[list[list[dict]]]:
+    """
+    Apply word and syllable preferences to override computed alternatives.
+
+    word_prefs keys are matched against original words (case-insensitive).
+    syl_prefs keys are matched against orthographic syllables (case-insensitive).
+    word_prefs takes precedence: if a word matches, its syllables are not
+    checked against syl_prefs.
+
+    Args:
+        alternatives: The computed alternatives structure [word][syllable][alternative]
+        orth_syllables: Orthographic syllables per word, parallel to alternatives
+        words: Original input words (for word_prefs matching)
+        word_prefs: Dict mapping words to preference strings
+        syl_prefs: Dict mapping syllables to preference strings
+
+    Returns:
+        Modified alternatives structure with preferences applied.
+    """
+    word_prefs_lower = {k.lower(): v for k, v in word_prefs.items()}
+    syl_prefs_lower = {k.lower(): v for k, v in syl_prefs.items()}
+
+    for i, word in enumerate(words):
+        word_lower = word.lower()
+
+        if word_lower in word_prefs_lower:
+            try:
+                pref_syllables = parse_pref_string(word_prefs_lower[word_lower])
+            except ValueError as e:
+                print(f"Warning: {e}", file=sys.stderr)
+                continue
+
+            if len(pref_syllables) != len(alternatives[i]):
+                print(
+                    f"Warning: word_prefs for '{word}' has {len(pref_syllables)} "
+                    f"syllable(s), but the word was split into "
+                    f"{len(alternatives[i])} syllable(s). Using preference as-is.",
+                    file=sys.stderr,
+                )
+            alternatives[i] = pref_syllables
+
+        else:
+            for j, syl in enumerate(orth_syllables[i]):
+                syl_lower = syl.lower()
+                if syl_lower in syl_prefs_lower:
+                    try:
+                        pref = parse_pref_string(syl_prefs_lower[syl_lower])
+                    except ValueError as e:
+                        print(f"Warning: {e}", file=sys.stderr)
+                        continue
+
+                    if len(pref) != 1:
+                        print(
+                            f"Warning: syl_prefs for '{syl}' contains "
+                            f"{len(pref)} syllable(s) (expected 1). "
+                            f"Using first syllable only.",
+                            file=sys.stderr,
+                        )
+                    alternatives[i][j] = pref[0]
+
+    return alternatives
+
+
 def main():
     """
     Main entry point for the command-line interface.
@@ -727,6 +847,8 @@ def main():
     phoneme_map = mapping["phoneme_map"]  # IPA → SynthV mappings
     vowels_orth = mapping["vowels_orth"]  # Orthographic vowels
     ipa_process = mapping["ipa_process"]  # IPA post-processing rules
+    word_prefs = mapping.get("word_prefs", {})  # Word-level overrides
+    syl_prefs = mapping.get("syl_prefs", {})  # Syllable-level overrides
 
     # Pre-calculate phoneme lengths for efficient segmentation
     # Sort descending so we try longest matches first
@@ -741,6 +863,8 @@ def main():
     else:
         text = sys.stdin.read()
 
+    words = text.strip().split()
+
     # Translation pipeline:
     # 1. Text → IPA with syllable boundaries
     ipa_list = ipa_convert(text, args.lang, vowels_orth, ipa_process)
@@ -753,7 +877,14 @@ def main():
         ipa_list, phoneme_map, key_lengths, args.alternatives, args.phoneme_edit
     )
 
-    # 3. Format output with language tags
+    # 3. Apply word/syllable preferences (overrides from mapping file)
+    if word_prefs or syl_prefs:
+        orth_syllables = syllabify_orthographically(text, args.lang, vowels_orth)
+        alternatives = apply_preferences(
+            alternatives, orth_syllables, words, word_prefs, syl_prefs
+        )
+
+    # 4. Format output with language tags
     output_string = get_output_string(alternatives)
 
     # Write output to file or stdout
@@ -765,5 +896,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
     main()

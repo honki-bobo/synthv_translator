@@ -6,6 +6,8 @@ This guide explains how phoneme mapping works in Synthesizer V Translator and ho
 
 - [Understanding Phoneme Mapping](#understanding-phoneme-mapping)
 - [Mapping File Structure](#mapping-file-structure)
+  - [word_prefs](#section-4-word_prefs-optional)
+  - [syl_prefs](#section-5-syl_prefs-optional)
 - [IPA to SynthV Conversion](#ipa-to-synthv-conversion)
 - [Weighting System](#weighting-system)
 - [Creating a New Mapping](#creating-a-new-mapping)
@@ -137,6 +139,49 @@ The order matters for two reasons:
 1. Most accurate phonetic match first
 2. Close approximations next
 3. Acceptable fallbacks last
+
+### Section 4: word_prefs (optional)
+
+**Purpose**: Override the entire translation output for specific words
+
+```json
+"word_prefs": {
+    "frühling": "<mandarin> f 7 y - <cantonese> l I N",
+    "deutschland": "<spanish> d o e u t sh - <english> l ae n d"
+}
+```
+
+- Keys are **case-insensitive** (e.g. `"frühling"` matches "Frühling" in the input)
+- Values use the same format as the translator output: `<language> phoneme ...`, syllables separated by ` - `
+- When a word matches, the automatic translation is completely replaced by the preference
+- Takes **precedence** over `syl_prefs` for the same word
+
+Use this when you've found a better phoneme sequence for an entire word through manual experimentation in Synthesizer V.
+
+### Section 5: syl_prefs (optional)
+
+**Purpose**: Override the translation output for specific syllables
+
+```json
+"syl_prefs": {
+    "früh": "<mandarin> f 7 y",
+    "ling": "<cantonese> l I N",
+    "schön": "<english> sh ey uw"
+}
+```
+
+- Keys are **case-insensitive** and matched against orthographic syllables after syllabification
+- Values use the same format: `<language> phoneme ...` for a single syllable
+- Overrides are **global**: a syllable like "ling" is replaced wherever it appears in any word
+- Ignored for words that already have a `word_prefs` match
+
+Use this when a particular syllable consistently translates poorly and you've found a better alternative. This is especially useful for syllables that appear across many words.
+
+### Precedence Rules
+
+1. **word_prefs** is checked first. If a word matches, its entire output is replaced and `syl_prefs` is not consulted for that word.
+2. **syl_prefs** is checked for each syllable of words that have no `word_prefs` match.
+3. Syllables with no preference match use the automatic translation as before.
 
 ## IPA to SynthV Conversion
 
