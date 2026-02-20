@@ -114,6 +114,8 @@ Create a new JSON file in the `mappings/` directory (e.g., `mappings/pl.json` fo
 {
   "vowels_orth": "aeiouáéíóú",
   "ipa_process": [],
+  "word_prefs": {},
+  "syl_prefs": {},
   "phoneme_map": {
     "a": [
       {"lang": "spanish", "ph": "a"},
@@ -135,6 +137,20 @@ Create a new JSON file in the `mappings/` directory (e.g., `mappings/pl.json` fo
 ]
 ```
 
+**`word_prefs`**: (optional) Object mapping words to preferred phoneme sequences that override the automatic translation for entire words
+```json
+"word_prefs": {
+  "frühling": "<mandarin> f 7 y - <cantonese> l I N"
+}
+```
+
+**`syl_prefs`**: (optional) Object mapping syllables to preferred phoneme sequences that override the automatic translation for individual syllables
+```json
+"syl_prefs": {
+  "schön": "<english> sh ey uw"
+}
+```
+
 **`phoneme_map`**: Object mapping IPA phonemes to Synthesizer V phonemes
 
 Each IPA phoneme maps to an array of possible SynthV representations:
@@ -149,6 +165,8 @@ Each IPA phoneme maps to an array of possible SynthV representations:
 - `ph`: The phoneme symbol in that language's notation
 - `weight`: (optional) Preference weight for this mapping (higher = preferred)
 
+For full details on `word_prefs`, `syl_prefs`, and precedence rules, see [MAPPING_GUIDE.md](MAPPING_GUIDE.md).
+
 #### Mapping Strategy
 
 1. **Start with common phonemes**: Map consonants and basic vowels first
@@ -161,7 +179,7 @@ Each IPA phoneme maps to an array of possible SynthV representations:
 
 Use these reference files in the `mappings/` directory:
 
-- `sv_phoneme_inventory.json`: Complete list of available SynthV phonemes per language
+- `sv_phoneme_inventory.json`: Complete list of available SynthV phonemes per language. Generate it from your local Synthesizer V installation by running `python generate_phoneme_inventory.py` (see [Development Setup](#development-setup) step 5).
 - Existing language mappings (`de.json`, `fr.json`, etc.): Examples to follow
 
 ### Step 4: Add Language to Code
