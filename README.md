@@ -31,6 +31,18 @@ A powerful command-line tool that translates text from various languages into ph
 
 ## Installation
 
+### Quick Install
+
+After downloading the repository (see [Step 3](#step-3-download-the-repository)), run the provided installation script to automatically install all dependencies and set up the inserter script:
+
+**Windows:** Double-click `install.bat` or run it from the command line.
+
+**macOS:** Double-click `install.command` in Finder. It opens Terminal and runs the installer automatically.
+
+The script checks for Python and eSpeak NG, downloads and runs the installers if needed, installs Python dependencies, and copies the inserter script into Synthesizer V.
+
+If you prefer to install everything manually, follow the steps below.
+
 ### Step 1: Install Python
 
 **Windows:**
