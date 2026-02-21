@@ -75,10 +75,24 @@ brew install python
 
 **macOS:**
 
-Open a terminal and run
+Open a terminal and run:
 ```bash
 brew install espeak-ng
 ```
+
+On **Apple Silicon Macs (M1/M2/M3)**, phonemizer may fail to locate the library automatically even after a successful install, showing `espeak not installed on your system`. This is because phonemizer's library loader does not search Homebrew's non-standard path (`/opt/homebrew/`). Fix it by setting the library path explicitly:
+
+```bash
+export PHONEMIZER_ESPEAK_LIBRARY=/opt/homebrew/opt/espeak-ng/lib/libespeak-ng.dylib
+```
+
+To make this permanent, add the line above to your `~/.zshrc` (or `~/.bash_profile`) and reopen the terminal.
+
+If the path above doesn't work, find the actual location with:
+```bash
+find /opt/homebrew -name "libespeak-ng*.dylib" 2>/dev/null
+```
+Then use the path it prints in the `export` command above.
 
 ### Step 3: Download the Repository
 

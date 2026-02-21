@@ -72,6 +72,36 @@ else
     fi
 fi
 
+# On Apple Silicon Macs, phonemizer cannot auto-detect the library in
+# Homebrew's non-standard path (/opt/homebrew/). Set the env var explicitly.
+ESPEAK_LIB=""
+KNOWN_LIB="/opt/homebrew/opt/espeak-ng/lib/libespeak-ng.dylib"
+
+if [ -f "$KNOWN_LIB" ]; then
+    ESPEAK_LIB="$KNOWN_LIB"
+else
+    # Fall back to searching for it
+    ESPEAK_LIB="$(find /opt/homebrew -name "libespeak-ng*.dylib" 2>/dev/null | head -n 1)"
+fi
+
+if [ -n "$ESPEAK_LIB" ]; then
+    ZSHRC="$HOME/.zshrc"
+    EXPORT_LINE="export PHONEMIZER_ESPEAK_LIBRARY=\"$ESPEAK_LIB\""
+
+    # Add to shell profile if not already present
+    if ! grep -qF "PHONEMIZER_ESPEAK_LIBRARY" "$ZSHRC" 2>/dev/null; then
+        echo "" >> "$ZSHRC"
+        echo "# Added by SynthV Translator installer" >> "$ZSHRC"
+        echo "$EXPORT_LINE" >> "$ZSHRC"
+        echo "  Set PHONEMIZER_ESPEAK_LIBRARY in $ZSHRC"
+    else
+        echo "  PHONEMIZER_ESPEAK_LIBRARY already set in $ZSHRC"
+    fi
+
+    # Also export for the current session so pip install can verify
+    export PHONEMIZER_ESPEAK_LIBRARY="$ESPEAK_LIB"
+fi
+
 echo
 
 # -----------------------------------------------
