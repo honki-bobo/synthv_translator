@@ -14,6 +14,8 @@ This guide explains how phoneme mapping works in Synthesizer V Translator and ho
 - [IPA to SynthV Conversion](#ipa-to-synthv-conversion)
 - [Weighting System](#weighting-system)
 - [Creating a New Mapping](#creating-a-new-mapping)
+  - [Using the Mapping Assistant](#using-the-mapping-assistant-recommended)
+  - [Step-by-Step Process](#step-by-step-process)
 - [Testing and Refinement](#testing-and-refinement)
 - [Reference Tables](#reference-tables)
 
@@ -369,11 +371,72 @@ English "ch" works best for [tʃ], weight boosts it significantly.
 
 ## Creating a New Mapping
 
+### Using the Mapping Assistant (Recommended)
+
+The quickest way to start a new mapping is the **Mapping Assistant** — an interactive command-line wizard that automates the most time-consuming parts of the process.
+
+```bash
+python mapping_assistant.py
+```
+
+Optional arguments:
+
+| Argument | Description |
+|---|---|
+| `--output mappings/pl.json` | Set the output path up front instead of being prompted at the end |
+| `--coverage-file text.txt` | Load coverage text from a UTF-8 file instead of pasting it interactively |
+
+The wizard walks you through five steps:
+
+| Step | What happens |
+|---|---|
+| 1. Language | Searches the eSpeak voice list; you pick your language by number |
+| 2. Coverage text | You paste (or supply via `--coverage-file`) a text; the wizard runs eSpeak and collects all IPA symbols that appear |
+| 3. vowels_orth | You type the orthographic vowel characters for the language |
+| 4. Phoneme mapping | For each IPA symbol, the wizard shows a suggested SynthV mapping from `mappings/ipa_suggestions.json`; you accept it with Enter, edit it, or skip it |
+| 5. Output file | The completed JSON is written to `mappings/<lang>.json` |
+
+For phoneme validation in Step 4, run `python generate_phoneme_inventory.py` first. This generates `mappings/sv_phoneme_inventory.json`, which lets the wizard warn you if a phoneme token you type does not exist in the target voice language.
+
+#### What the wizard produces
+
+The wizard outputs a fully valid mapping file with `vowels_orth` and `phoneme_map` filled in for every symbol you confirmed. All other fields are left in their default state:
+
+```json
+{
+  "vowels_orth": "aeiouy...",   ← filled in by wizard
+  "ipa_process": [],            ← left empty
+  "word_prefs":  {},            ← left empty
+  "syl_prefs":   {},            ← left empty
+  "phoneme_map": { ... }        ← filled in for confirmed symbols
+}
+```
+
+#### What the wizard does not do
+
+The wizard produces a working first draft, but you should review and complete the file manually before considering it production-ready:
+
+| What is missing | Why | What to do |
+|---|---|---|
+| `ipa_process` rules | Requires testing to discover eSpeak inconsistencies | Add after testing — see Step 6 below |
+| Weights | Subjective; requires listening tests | Add after testing — see Step 7 below |
+| `word_prefs` / `syl_prefs` | Require hearing the output in Synthesizer V | Add during refinement — see Step 8 below |
+| Skipped symbols | Any symbol you pressed `s` on, or that the coverage text did not trigger, is absent | Find them by running the translator and checking the warnings |
+| Multi-alternative entries | Wizard accepts the first suggestion as-is; extra alternatives for the optimizer are not added | Consider broadening important entries manually |
+
+After running the wizard, continue with **Step 6** to add `ipa_process` rules, then **Step 7** for weights, and **Step 8** for testing.
+
+---
+
 ### Step-by-Step Process
+
+The steps below cover the full process in detail. If you used the wizard, Steps 1–5 are already done — skip to Step 6.
 
 #### 1. Research the Language
 
 The goal of this step is to build a complete list of all IPA symbols that eSpeak will produce for your language. Every symbol that appears in eSpeak's output must have an entry in `phoneme_map`, otherwise the translator will emit a warning and skip it.
+
+> **The wizard automates this step.** When you run `mapping_assistant.py`, Step 2 of the wizard does exactly this: it runs eSpeak on your coverage text and presents you with every IPA symbol found.
 
 **Find the eSpeak language code**
 
@@ -412,7 +475,9 @@ Go through the output and collect every distinct IPA symbol you see. This is you
 
 #### 2. Start with Template
 
-Create a new file in the `mappings/` directory, e.g. `mappings/pl.json` for Polish. Start with this empty template and fill it in over the following steps:
+> **The wizard automates this step.** `mapping_assistant.py` creates the output file with the correct structure automatically.
+
+If starting manually, create a new file in the `mappings/` directory, e.g. `mappings/pl.json` for Polish:
 
 ```json
 {
@@ -431,12 +496,14 @@ espeak-ng --voices | grep -i polish
 
 **Check if pyphen supports your language** — pyphen handles syllabification and needs a dictionary for your language. Look for it with:
 ```bash
-python -c "import pyphen; print(pyphen.language_available('pl_PL'))"
+python -c "import pyphen; print('pl' in pyphen.LANGUAGES)"
 ```
 
-If the language is not available, syllabification will fall back to a simple vowel-based split using `vowels_orth`, which is less accurate but still functional. You can check all available pyphen dictionaries with `pyphen.get_languages()`.
+If the language is not available, syllabification will fall back to a simple vowel-based split using `vowels_orth`, which is less accurate but still functional.
 
 #### 3. Fill in vowels_orth
+
+> **The wizard automates this step.** Step 3 of `mapping_assistant.py` prompts you for the vowel characters and writes them into the file.
 
 List every character the language uses to write a vowel sound, including accented and special forms. This is used for syllabification — if a character is missing, syllable boundaries may be wrong.
 
@@ -447,6 +514,8 @@ List every character the language uses to write a vowel sound, including accente
 When in doubt, include more rather than fewer characters. A character being listed here does not affect phoneme mapping — it only affects how words are split into syllables.
 
 #### 4. Map Common Phonemes First
+
+> **The wizard automates Steps 4 and 5.** Step 4 of `mapping_assistant.py` walks through every IPA symbol found in your coverage text, shows the built-in suggestion from `mappings/ipa_suggestions.json`, and lets you accept, edit, or skip each one. The suggestions are a generic starting point — review them and edit any that don't fit your language.
 
 Start with the phonemes that appear most frequently. Getting these right first lets you test with real words quickly.
 
