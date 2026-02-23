@@ -180,10 +180,7 @@ def main():
         print()
         print(f"SUCCESS: Generated phoneme inventory at: {output_file}")
         print()
-        print("The phoneme inventory has been created and can be used as a reference")
-        print("when creating new language mappings.")
-        print()
-        print("Note: This file is gitignored and for local development use only.")
+        print("This file is gitignored and for local development use only.")
 
     except Exception as e:
         print(f"Error writing output file: {e}", file=sys.stderr)

@@ -16,8 +16,7 @@ Thumbs.db
 
 # Synthesizer V phoneme reference files #
 ##########################################
-# These files are generated from local SynthV installation
-# and should not be redistributed due to licensing
+# Generated from local SynthV installation; not redistributable due to licensing
 mappings/*_phonemes.json
 mappings/sv_phoneme_inventory.json
 
