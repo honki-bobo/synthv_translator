@@ -29,7 +29,7 @@ import re
 import sys
 from os import PathLike
 from pathlib import Path
-from typing import Union
+from typing import Union, cast
 
 import pyphen
 from phonemizer import phonemize
@@ -196,14 +196,16 @@ def syllabify_orthographically(
     # Use pyphen to syllabify each word
     dic = pyphen.Pyphen(lang=lang)
     words = text.strip().split()
-    syllabified_words = [dic.inserted(word) for word in words]
+    hyphenated_words = [dic.inserted(word) for word in words]
 
     # Post-processing to fix pyphen's limitations
     # Regex patterns for special cases
     vowel_e_re = re.compile(rf"[{re.escape(vowels_orth)}][eE]$")  # Vowel + e at end
     vowel_hb_re = re.compile(rf"[{re.escape(vowels_orth)}][hb]$")  # Vowel + h/b at end
 
-    for idx, word in enumerate(syllabified_words):
+    result: list[list[str]] = []
+
+    for word in hyphenated_words:
         syls = word.split("-")
 
         # Handle unsyllabified words (pyphen returned no hyphens)
@@ -215,7 +217,7 @@ def syllabify_orthographically(
             elif vowel_e_re.search(syls[0][-2:].lower()):
                 syls = [syls[0][:-1], syls[0][-1]]
 
-            syllabified_words[idx] = [s for s in syls]
+            result.append(list(syls))
             continue
 
         # Fix grapheme clusters that should stay together
@@ -242,10 +244,9 @@ def syllabify_orthographically(
             else:
                 i += 1
 
-        # Update word with corrected syllables
-        syllabified_words[idx] = [s for s in syls]
+        result.append(list(syls))
 
-    return syllabified_words
+    return result
 
 
 def post_process_ipa(ipa_string: str, ipa_process: list[list] = []) -> str:
@@ -318,7 +319,7 @@ def ipa_convert(
     syllable_tokens = [syl for word in syllabified_words for syl in word]
     ipa_list = [
         post_process_ipa(syl, ipa_process)
-        for syl in phonemize(
+        for syl in cast(list[str], phonemize(
             syllable_tokens,
             language="fr-fr" if lang == "fr" else lang,  # eSpeak uses "fr-fr" not "fr"
             backend="espeak",
@@ -326,7 +327,7 @@ def ipa_convert(
             preserve_punctuation=False,
             with_stress=False,  # Disable stress marks
             language_switch="remove-flags",  # Don't insert language switch markers
-        )
+        ))
     ]
 
     # Step 3: Phonemize multi-syllable words as whole units
@@ -334,7 +335,7 @@ def ipa_convert(
     word_tokens = ["".join(w) for w in syllabified_words if len(w) > 1]
     ipa_list_words = [
         post_process_ipa(word, ipa_process)
-        for word in phonemize(
+        for word in cast(list[str], phonemize(
             word_tokens,
             language="fr-fr" if lang == "fr" else lang,
             backend="espeak",
@@ -342,7 +343,7 @@ def ipa_convert(
             preserve_punctuation=False,
             with_stress=False,
             language_switch="remove-flags",
-        )
+        ))
     ]
 
     # Step 4: Combine syllable boundaries with correct word phonology
@@ -488,7 +489,7 @@ def get_syllable_alternatives(
     # Return requested number of alternatives
     if n_alternatives == -1:
         return results  # Return all
-    elif n_alternatives >= 0:
+    else:
         return results[: min(len(results), n_alternatives + 1)]  # Return top N+1
 
 
