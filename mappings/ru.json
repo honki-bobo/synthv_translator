@@ -1,8 +1,19 @@
 {
   "vowels_orth": "аеёиоуыэюяАЕЁИОУЫЭЮЯ",
   "ipa_process": [
+    ["ɡ", "g"],
     ["ʲ", ""]
   ],
+  "word_prefs": {
+    "в": "<spanish> v",
+    "к": "<spanish> k",
+    "с": "<spanish> s",
+    "а": "<spanish> a",
+    "и": "<spanish> i",
+    "о": "<spanish> o",
+    "у": "<spanish> u",
+    "я": "<japanese> ya"
+  },
   "phoneme_map": {
     "p": [
       {

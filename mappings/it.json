@@ -1,6 +1,11 @@
 {
   "vowels_orth": "aeioàèéìòóù",
-  "ipa_process": [],
+  "ipa_process": [
+    ["ɡ", "g"]
+  ],
+  "word_prefs": {
+    "è": "<spanish> e"
+  },
   "phoneme_map": {
     "p": [
       {

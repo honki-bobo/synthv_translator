@@ -1,10 +1,15 @@
 {
   "vowels_orth": "aeioàáâãéêíóôõú",
   "ipa_process": [
+    ["ɡ", "g"],
     ["([^aeioàáâãéêíóôõúɛɔɐəɜ])(ɾ|r)", "\\1ʁ"],
     ["^(ɾ|r)", "ʁ"],
     ["̃", ""]
   ],
+  "word_prefs": {
+    "é": "<spanish> e",
+    "à": "<spanish> a"
+  },
   "phoneme_map": {
     "p": [
       {
@@ -132,6 +137,12 @@
         "ph": "r"
       }
     ],
+    "ɹ": [
+      {
+        "lang": "english",
+        "ph": "r"
+      }
+    ],
     "i": [
       {
         "lang": "spanish",
@@ -142,6 +153,16 @@
       {
         "lang": "spanish",
         "ph": "e"
+      }
+    ],
+    "ɨ": [
+      {
+        "lang": "english",
+        "ph": "ih"
+      },
+      {
+        "lang": "spanish",
+        "ph": "i"
       }
     ],
     "ɛ": [
