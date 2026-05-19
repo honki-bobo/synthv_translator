@@ -200,7 +200,12 @@ def syllabify_orthographically(
 
     # Post-processing to fix pyphen's limitations
     # Regex patterns for special cases
-    vowel_e_re = re.compile(rf"[{re.escape(vowels_orth)}][eE]$")  # Vowel + e at end
+    # German: diphthong (au/eu/äu/ei/ai) + inflectional -e, e.g. "blaue" → blau+e
+    # Other languages: only "ae" → a+e (Romance "ie/ue" endings are single syllables)
+    if lang == "de":
+        vowel_e_re = re.compile(r"(?:au|eu|äu|ei|ai)[eE]$|[aA][eE]$", re.IGNORECASE)
+    else:
+        vowel_e_re = re.compile(r"[aA][eE]$")
     vowel_hb_re = re.compile(rf"[{re.escape(vowels_orth)}][hb]$")  # Vowel + h/b at end
 
     result: list[list[str]] = []
@@ -214,8 +219,21 @@ def syllabify_orthographically(
             if vowel_hb_re.search(syls[0][:2].lower()):
                 syls = [syls[0][0], syls[0][1:]]
             # Try to split before final 'e' if preceded by vowel (e.g., "ae" → "a-e")
-            elif vowel_e_re.search(syls[0][-2:].lower()):
+            elif vowel_e_re.search(syls[0].lower()):
                 syls = [syls[0][:-1], syls[0][-1]]
+            else:
+                # General VCV fallback: split at the first vowel→consonant transition
+                # that precedes another vowel (e.g., "ami" → ["a","mi"]).
+                # Pyphen suppresses splits that leave a single character (typographic
+                # rule), but those are valid phonological syllable boundaries.
+                w = syls[0]
+                for i in range(1, len(w) - 1):
+                    if (w[i - 1].lower() in vowels_orth
+                            and w[i].lower() not in vowels_orth
+                            and any(w[j].lower() in vowels_orth
+                                    for j in range(i + 1, len(w)))):
+                        syls = [w[:i], w[i:]]
+                        break
 
             result.append(list(syls))
             continue
