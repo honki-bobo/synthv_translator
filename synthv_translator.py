@@ -419,9 +419,19 @@ def get_syllable_alternatives(
         List[Dict[str, Any]]: Each dict has keys {"weight", "single_lang", "mapping"}.
     """
 
-    # Step 1: Filter phoneme map to only include phonemes in this sequence
-    # Ignore phonemes that aren't in the mapping (shouldn't happen normally)
-    phoneme_seq_map = {ph: phoneme_map[ph] for ph in phoneme_seq if ph in phoneme_map}
+    # Step 1: Filter out phonemes that have no mapping entry
+    filtered_seq = [ph for ph in phoneme_seq if ph in phoneme_map]
+    unmapped = [ph for ph in phoneme_seq if ph not in phoneme_map]
+    if unmapped:
+        print(
+            f"Warning: Phonemes {unmapped} are not in the mapping and will be skipped.",
+            file=sys.stderr,
+        )
+
+    if not filtered_seq:
+        return []
+
+    phoneme_seq_map = {ph: phoneme_map[ph] for ph in filtered_seq}
 
     # Step 2: Calculate maximum number of alternatives for any phoneme
     # This is used for position-based weighting
@@ -432,7 +442,7 @@ def get_syllable_alternatives(
     # Step 3: Generate all possible combinations using cartesian product
     # For each phoneme, we have multiple language options
     # Product generates every possible combination across all phonemes
-    option_lists = [phoneme_seq_map[ph] for ph in phoneme_seq]
+    option_lists = [phoneme_seq_map[ph] for ph in filtered_seq]
 
     for combo in itertools.product(*option_lists):
         # Each combo is one specific choice for each phoneme
@@ -440,7 +450,7 @@ def get_syllable_alternatives(
         total_weight = 0.0
         langs = []
 
-        for ph, chosen_entry in zip(phoneme_seq, combo):
+        for ph, chosen_entry in zip(filtered_seq, combo):
             # Calculate weight for this phoneme choice
             idx = phoneme_seq_map[ph].index(chosen_entry)
             # Weight = position bonus + custom weight
