@@ -67,8 +67,8 @@ from pathlib import Path
 
 _color: bool = sys.stdout.isatty() and (
     os.name != "nt"
-    or os.environ.get("WT_SESSION")   # Windows Terminal
-    or os.environ.get("ANSICON")      # ConEmu / Cmder ANSI shim
+    or os.environ.get("WT_SESSION") is not None   # Windows Terminal
+    or os.environ.get("ANSICON") is not None      # ConEmu / Cmder ANSI shim
 )
 
 
@@ -625,6 +625,8 @@ def step_coverage_text(lang_code: str, prefilled_text: str = "") -> list[str]:
         action = input(cyan("\n  [Enter] Proceed  [a] Add more text: ")).strip().lower()
         if action != "a":
             return symbols
+
+    return sorted(accumulated, key=lambda s: (len(s), s))
 
 
 def step_vowels_orth() -> str:
