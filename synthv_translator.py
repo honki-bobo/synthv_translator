@@ -890,9 +890,25 @@ def main():
     elif args.words:
         text = " ".join(args.words)
     else:
+        if sys.stdin.isatty():
+            print("Error: no input text. Pass words as arguments or use -i <file>.", file=sys.stderr)
+            parser.print_usage(sys.stderr)
+            sys.exit(1)
         text = sys.stdin.read()
 
     words = text.strip().split()
+
+    # Detect obvious script/language mismatches before calling eSpeak, which can
+    # hang indefinitely when given text in an unrecognised script for the voice.
+    _CYRILLIC = re.compile(r"[Ѐ-ӿ]")
+    _LATIN_LANGS = {"de", "fr", "it", "pt"}
+    if args.lang in _LATIN_LANGS and _CYRILLIC.search(text):
+        print(
+            f"Error: text contains Cyrillic characters but language is '{args.lang}'. "
+            f"Did you mean '-l ru'?",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # Translation pipeline:
     # 1. Text → IPA with syllable boundaries
