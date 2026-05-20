@@ -462,6 +462,24 @@ def get_syllable_alternatives(
     # Product generates every possible combination across all phonemes
     option_lists = [phoneme_seq_map[ph] for ph in filtered_seq]
 
+    # Guard against combinatorial explosion: with many phonemes and/or many
+    # alternatives per phoneme the product grows exponentially.  Cap at a
+    # safe upper bound; when exceeded, fall back to one alternative per
+    # phoneme (the highest-priority entry in each list).
+    _MAX_COMBOS = 50_000
+    product_size = 1
+    for _opts in option_lists:
+        product_size *= len(_opts)
+        if product_size > _MAX_COMBOS:
+            print(
+                f"Warning: IPA sequence '{''.join(phoneme_seq)}' produces "
+                f"{product_size:,}+ phoneme combinations; "
+                "using best alternative per phoneme.",
+                file=sys.stderr,
+            )
+            option_lists = [opts[:1] for opts in option_lists]
+            break
+
     for combo in itertools.product(*option_lists):
         # Each combo is one specific choice for each phoneme
         mapping = []
