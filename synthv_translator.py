@@ -21,6 +21,8 @@ License: MIT
 Repository: https://github.com/honki-bobo/synthv_translator
 """
 
+from __future__ import annotations
+
 import argparse
 import difflib
 import itertools
