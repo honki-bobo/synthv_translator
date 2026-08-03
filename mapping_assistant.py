@@ -51,6 +51,8 @@ Usage
   python mapping_assistant.py --coverage-file coverage_pl.txt
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
